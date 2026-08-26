@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Territories: Real-Time Game-Theoretic Commander</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #05060b;
+            --bg-panel: rgba(10, 12, 22, 0.85);
+            --border-neon: rgba(0, 240, 255, 0.25);
+            --neon-blue: #00f0ff;
+            --neon-pink: #ff007f;
+            --neon-purple: #9d00ff;
+            --neon-green: #39ff14;
+            --nova: #ffd700;
+            --vortex: #ff3b30;
+            --pulse: #00f0ff;
+            --synth: #af52de;
+            --neutral: #4a5568;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: rgba(5, 6, 11, 0.9);
+            border-bottom: 1px solid var(--border-neon);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+            z-index: 10;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 20px;
+            letter-spacing: 2px;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+
+        .logo span {
+            font-size: 9px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: block;
+            margin-top: -2px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            -webkit-text-fill-color: #8a99ad;
+        }
+
+        .hud-stats {
+            display: flex;
+            gap: 20px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .hud-box {
+            text-align: center;
+        }
+
+        .hud-label {
+            font-size: 9px;
+            color: #8a99ad;
+            text-transform: uppercase;
+        }
+
+        .hud-val {
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--neon-blue);
+        }
+
+        .game-layout {
+            display: flex;
+            flex-grow: 1;
+            height: calc(100vh - 60px);
+            position: relative;
+        }
+
+        /* Sidebar Panels */
+        .sidebar {
+            width: 320px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border-neon);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            z-index: 5;
+            overflow-y: auto;
+        }
+
+        .sidebar.right {
+            border-right: none;
+            border-left: 1px solid var(--border-neon);
+            width: 340px;
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--neon-blue);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.15);
+            padding-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Controls Panel */
+        .controls-info {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 11px;
+            line-height: 1.5;
+            color: #a0aec0;
+            margin-bottom: 15px;
+        }
+
+        .key-badge {
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid var(--neon-blue);
+            border-radius: 3px;
+            padding: 1px 5px;
+            color: white;
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        /* Abilities Grid */
+        .ability-btn {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-neon);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .ability-btn:hover {
+            background: rgba(0, 240, 255, 0.1);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+        }
+
+        .ability-btn.active {
+            border-color: var(--neon-pink);
+            background: rgba(255, 0, 127, 0.1);
+            box-shadow: 0 0 10px rgba(255, 0, 127, 0.3);
+        }
+
+        .ability-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .ability-cost {
+            font-size: 9px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Game Theory Matrix */
+        .matrix-container {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: 60px 1fr 1fr;
+            gap: 4px;
+            text-align: center;
+            font-size: 10px;
+            margin-top: 8px;
+        }
+
+        .matrix-cell {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            padding: 8px 3px;
+        }
+
+        .matrix-cell.nash {
+            border-color: var(--neon-green);
+            background: rgba(57, 255, 20, 0.08);
+            box-shadow: 0 0 8px rgba(57, 255, 20, 0.2);
+        }
+
+        .matrix-header {
+            font-weight: bold;
+            color: var(--neon-blue);
+            padding: 4px;
+        }
+
+        /* Real-Time Canvas Area */
+        .canvas-area {
+            flex-grow: 1;
+            position: relative;
+            background: radial-gradient(circle, #0e1220 0%, #06080e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(5, 6, 11, 0.95);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .overlay-box {
+            background: var(--bg-panel);
+            border: 2px solid var(--neon-blue);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .btn {
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin-top: 20px;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+        }
+
+        .btn:hover {
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .standing-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 4px;
+            margin-bottom: 6px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            NEON TERRITORIES
+            <span>Real-time Strategic allocation</span>
+        </div>
+        <div class="hud-stats">
+            <div class="hud-box">
+                <div class="hud-label">Time Remaining</div>
+                <div class="hud-val" id="time-val">03:00</div>
+            </div>
+            <div class="hud-box">
+                <div class="hud-label">Commander Score</div>
+                <div class="hud-val" id="score-val" style="color: var(--neon-pink);">0</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="game-layout">
+        <!-- Left Panel: Faction Status & Abilities -->
+        <div class="sidebar">
+            <div class="panel-title">COMMANDER PROFILE</div>
+            <div class="controls-info">
+                <strong>Controls:</strong><br>
+                • Move Commander: <span class="key-badge">W</span> <span class="key-badge">A</span> <span class="key-badge">S</span> <span class="key-badge">D</span> / Mouse Click<br>
+                • Aim & Attack: <span class="key-badge">Mouse Movement</span> & <span class="key-badge">Left Click</span><br>
+                • Capture: Stand inside sectors to capture them.
+            </div>
+
+            <div class="panel-title">RESOURCES</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px;">
+                <div style="background: rgba(255,215,0,0.05); padding: 8px; border-radius: 6px; text-align: center; border: 1px solid rgba(255,215,0,0.15);">
+                    <div style="font-size: 9px; color: #8a99ad;">Credits</div>
+                    <div style="font-size: 15px; font-weight: bold; color: var(--nova); font-family: 'Orbitron';" id="res-credits">100</div>
+                </div>
+                <div style="background: rgba(255,59,48,0.05); padding: 8px; border-radius: 6px; text-align: center; border: 1px solid rgba(255,59,48,0.15);">
+                    <div style="font-size: 9px; color: #8a99ad;">Energy</div>
+                    <div style="font-size: 15px; font-weight: bold; color: var(--vortex); font-family: 'Orbitron';" id="res-energy">80</div>
+                </div>
+                <div style="background: rgba(0,240,255,0.05); padding: 8px; border-radius: 6px; text-align: center; border: 1px solid rgba(0,240,255,0.15);">
+                    <div style="font-size: 9px; color: #8a99ad;">Tech</div>
+                    <div style="font-size: 15px; font-weight: bold; color: var(--pulse); font-family: 'Orbitron';" id="res-tech">20</div>
+                </div>
+                <div style="background: rgba(175,82,222,0.05); padding: 8px; border-radius: 6px; text-align: center; border: 1px solid rgba(175,82,222,0.15);">
+                    <div style="font-size: 9px; color: #8a99ad;">Influence</div>
+                    <div style="font-size: 15px; font-weight: bold; color: var(--synth); font-family: 'Orbitron';" id="res-influence">20</div>
+                </div>
+            </div>
+
+            <div class="panel-title">SPECIAL ABILITIES</div>
+            <div class="ability-btn active" id="ab-strike" onclick="setAbility('strike')">
+                <span class="ability-title">🎯 Strike Team (VORTEX)</span>
+                <span class="ability-cost">Cost: 30 Energy</span>
+            </div>
+            <div class="ability-btn" id="ab-shield" onclick="setAbility('shield')">
+                <span class="ability-title">🛡️ Shield Barrier (Defense)</span>
+                <span class="ability-cost">Cost: 20 Energy / 20 Credits</span>
+            </div>
+            <div class="ability-btn" id="ab-upgrade" onclick="setAbility('upgrade')">
+                <span class="ability-title">📈 Invest & Upgrade (NOVA)</span>
+                <span class="ability-cost">Cost: 50 Credits</span>
+            </div>
+        </div>
+
+        <!-- Center Game View Canvas -->
+        <div class="canvas-area">
+            <canvas id="gameCanvas"></canvas>
+        </div>
+
+        <!-- Right Panel: Game Theory Dashboard -->
+        <div class="sidebar right">
+            <div class="panel-title">DYNAMIC PAYOFF MATRIX</div>
+            <div class="matrix-container">
+                <div style="font-size: 11px; font-weight: bold; margin-bottom: 5px;" id="matrix-title">Sector Contest</div>
+                <div style="font-size: 9px; color: #8a99ad; margin-bottom: 8px;" id="matrix-subtitle">Aggressor vs Defender utilities.</div>
+                
+                <div class="matrix-grid">
+                    <div></div>
+                    <div class="matrix-header" id="col-h0">Defend</div>
+                    <div class="matrix-header" id="col-h1">Invest</div>
+
+                    <div class="matrix-header" style="text-align: left; padding: 6px 0;" id="row-h0">Attack</div>
+                    <div class="matrix-cell" id="cell-0-0">
+                        <div style="font-weight: bold; font-family: 'Orbitron';" id="c-0-0">(-30, -20)</div>
+                    </div>
+                    <div class="matrix-cell" id="cell-0-1">
+                        <div style="font-weight: bold; font-family: 'Orbitron';" id="c-0-1">(110, -115)</div>
+                    </div>
+
+                    <div class="matrix-header" style="text-align: left; padding: 6px 0;" id="row-h1">Passive</div>
+                    <div class="matrix-cell" id="cell-1-0">
+                        <div style="font-weight: bold; font-family: 'Orbitron';" id="c-1-0">(0, -20)</div>
+                    </div>
+                    <div class="matrix-cell" id="cell-1-1">
+                        <div style="font-weight: bold; font-family: 'Orbitron';" id="c-1-1">(0, -50)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-title">FACTION SECTORS</div>
+            <div class="standings-list" id="standings-list" style="flex-grow: 1;">
+                <!-- Standing details -->
+            </div>
+
+            <div class="panel-title">SECTOR LOGS</div>
+            <div id="sector-terminal" style="font-family: 'Share Tech Mono', monospace; font-size: 10px; height: 120px; overflow-y: auto; background: rgba(0,0,0,0.4); padding: 5px; border-radius: 4px; border: 1px solid var(--border-neon); color: #00ff66;">
+                [Game Running] Move your Commander node using WASD controls. Capture sectors to generate resources.
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Overlay Screen -->
+    <div class="overlay active" id="overlay">
+        <div class="overlay-box">
+            <h1 class="logo" style="font-size: 32px; margin-bottom: 20px;">NEON TERRITORIES</h1>
+            <p style="font-size: 12px; margin-bottom: 30px; line-height: 1.6; color: #a0aec0;">
+                Welcome Commander. You control the <strong>Nova Corp (Yellow)</strong> hero unit. 
+                Move around the map, capture the 14 territories, and defend your bases from Vortex Syndicate (Red), Pulse (Cyan), and Synth (Purple) creep forces.
+            </p>
+            <button class="btn" onclick="startPlay()">Deploy Faction</button>
+        </div>
+    </div>
+
+    <!-- Final Results Overlay -->
+    <div class="overlay" id="end-overlay">
+        <div class="overlay-box">
+            <h2 class="logo" style="font-size: 28px; margin-bottom: 20px;" id="end-title">MISSION COMPLETE</h2>
+            <div id="end-results" style="font-size: 13px; text-align: left; margin: 20px 0; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
+                <!-- Results -->
+            </div>
+            <button class="btn" onclick="location.reload()">Re-Deploy</button>
+        </div>
+    </div>
+
+    <script>
+        // Web Audio Synthesizer for Retro Game sounds
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'laser') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.15);
+                } 
+                else if (type === 'hit') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.1);
+                }
+                else if (type === 'capture') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(600, audioCtx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.2);
+                }
+            } catch(e) {}
+        }
+
+        // Setup Factions
+        const Factions = {
+            P1: { id: 'P1', name: 'Nova Corp', color: '#ffd700', bg: 'rgba(255,215,0,0.1)' },
+            P2: { id: 'P2', name: 'Vortex Syndicate', color: '#ff3b30', bg: 'rgba(255,59,48,0.1)' },
+            P3: { id: 'P3', name: 'Pulse Network', color: '#00f0ff', bg: 'rgba(0,240,255,0.1)' },
+            P4: { id: 'P4', name: 'Synth Nexus', color: '#af52de', bg: 'rgba(175,82,222,0.1)' }
+        };
+
+        // Complete Map configuration
+        const Nodes = {
+            T01: { id: 'T01', name: 'Grid North', type: 'Energy', x: 400, y: 100, owner: 'P1', hp: 100, val: 60, gen: { credits: 0, energy: 30, tech: 0, influence: 0 }, neighbors: ['T02', 'T03', 'T04'] },
+            T02: { id: 'T02', name: 'Silicon Valley', type: 'Technology', x: 650, y: 200, owner: 'P3', hp: 100, val: 70, gen: { credits: 0, energy: 0, tech: 20, influence: 0 }, neighbors: ['T01', 'T05', 'T08'] },
+            T03: { id: 'T03', name: 'Finance Sect.', type: 'Credit', x: 150, y: 200, owner: 'P1', hp: 100, val: 65, gen: { credits: 40, energy: 0, tech: 0, influence: 0 }, neighbors: ['T01', 'T06', 'T08'] },
+            T04: { id: 'T04', name: 'Citadel West', type: 'Defense', x: 400, y: 300, owner: 'P2', hp: 100, val: 80, gen: { credits: 0, energy: 0, tech: 0, influence: 10 }, neighbors: ['T01', 'T05', 'T11'] },
+            T05: { id: 'T05', name: 'Industry Belt', type: 'Energy', x: 600, y: 380, owner: null, hp: 100, val: 75, gen: { credits: 0, energy: 30, tech: 0, influence: 0 }, neighbors: ['T02', 'T04', 'T07', 'T08'] },
+            T06: { id: 'T06', name: 'Commercial Hub', type: 'Credit', x: 200, y: 380, owner: null, hp: 100, val: 70, gen: { credits: 40, energy: 0, tech: 0, influence: 0 }, neighbors: ['T03', 'T07', 'T09', 'T08'] },
+            T07: { id: 'T07', name: 'Research Lab', type: 'Technology', x: 400, y: 500, owner: null, hp: 100, val: 85, gen: { credits: 0, energy: 0, tech: 20, influence: 0 }, neighbors: ['T05', 'T06', 'T10'] },
+            T08: { id: 'T08', name: 'Central Core', type: 'Core', x: 400, y: 200, owner: null, hp: 100, val: 150, gen: { credits: 15, energy: 15, tech: 10, influence: 10 }, neighbors: ['T02', 'T03', 'T05', 'T06', 'T13', 'T14'] },
+            T09: { id: 'T09', name: 'Harbor Dist.', type: 'Credit', x: 150, y: 550, owner: 'P4', hp: 100, val: 65, gen: { credits: 40, energy: 0, tech: 0, influence: 0 }, neighbors: ['T06', 'T12', 'T13'] },
+            T10: { id: 'T10', name: 'Tech Plaza', type: 'Technology', x: 650, y: 550, owner: 'P3', hp: 100, val: 70, gen: { credits: 0, energy: 0, tech: 20, influence: 0 }, neighbors: ['T07', 'T11', 'T14'] },
+            T11: { id: 'T11', name: 'Power Grid', type: 'Energy', x: 650, y: 380, owner: 'P2', hp: 100, val: 60, gen: { credits: 0, energy: 30, tech: 0, influence: 0 }, neighbors: ['T04', 'T10', 'T14'] },
+            T12: { id: 'T12', name: 'Gate East', type: 'Defense', x: 150, y: 380, owner: 'P4', hp: 100, val: 75, gen: { credits: 0, energy: 0, tech: 0, influence: 10 }, neighbors: ['T09', 'T13', 'T14'] },
+            T13: { id: 'T13', name: 'Neon Blvd', type: 'Credit', x: 280, y: 620, owner: null, hp: 100, val: 68, gen: { credits: 40, energy: 0, tech: 0, influence: 0 }, neighbors: ['T08', 'T09', 'T12', 'T14'] },
+            T14: { id: 'T14', name: 'Sub-Core', type: 'Core', x: 520, y: 620, owner: null, hp: 100, val: 130, gen: { credits: 15, energy: 15, tech: 10, influence: 10 }, neighbors: ['T08', 'T10', 'T11', 'T12', 'T13'] }
+        };
+
+        // Canvas & Player Setup
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let player = {
+            x: 400,
+            y: 100,
+            targetX: 400,
+            targetY: 100,
+            speed: 4,
+            credits: 100,
+            energy: 80,
+            tech: 20,
+            influence: 20,
+            score: 0,
+            activeAbility: 'strike'
+        };
+
+        const keys = {};
+        const creeps = [];
+        const bullets = [];
+        const particles = [];
+        let gameTime = 180; // 3 minutes in seconds
+        let gameInterval = null;
+        let lastTime = 0;
+        let selectedNode = 'T08';
+        let isGameRunning = false;
+
+        // Input listeners
+        window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+        window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+        canvas.addEventListener('click', e => {
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            // Check if clicking a Node to select it
+            let clickedNode = null;
+            for (const nId in Nodes) {
+                const node = Nodes[nId];
+                const dist = Math.hypot(clickX - node.x, clickY - node.y);
+                if (dist < 28) {
+                    clickedNode = nId;
+                    break;
+                }
+            }
+
+            if (clickedNode) {
+                selectedNode = clickedNode;
+                playSound('capture');
+                updateGTMatrix();
+            } else {
+                // Shoot a laser bullet towards click location
+                if (player.energy >= 5) {
+                    player.energy -= 5;
+                    updateUI();
+                    shootBullet(player.x, player.y, clickX, clickY, 'P1');
+                }
+            }
+        });
+
+        function shootBullet(sx, sy, tx, ty, owner) {
+            const angle = Math.atan2(ty - sy, tx - sx);
+            bullets.push({
+                x: sx,
+                y: sy,
+                vx: Math.cos(angle) * 8,
+                vy: Math.sin(angle) * 8,
+                owner,
+                color: owner === 'P1' ? '#ffd700' : Factions[owner]?.color || '#ffffff'
+            });
+            playSound('laser');
+        }
+
+        function setAbility(type) {
+            player.activeAbility = type;
+            document.getElementById('ab-strike').classList.toggle('active', type === 'strike');
+            document.getElementById('ab-shield').classList.toggle('active', type === 'shield');
+            document.getElementById('ab-upgrade').classList.toggle('active', type === 'upgrade');
+        }
+
+        function startPlay() {
+            document.getElementById('overlay').classList.remove('active');
+            isGameRunning = true;
+            resizeCanvas();
+            gameInterval = setInterval(gameTimerTick, 1000);
+            requestAnimationFrame(gameLoop);
+        }
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        // Timer Tick
+        function gameTimerTick() {
+            if (!isGameRunning) return;
+            gameTime--;
+            
+            // Format time
+            const mins = Math.floor(gameTime / 60).toString().padStart(2, '0');
+            const secs = (gameTime % 60).toString().padStart(2, '0');
+            document.getElementById('time-val').innerText = `${mins}:${secs}`;
+
+            // Generate resources from captured sectors
+            let cr = 0, en = 0, te = 0, inf = 0;
+            for (const nId in Nodes) {
+                const node = Nodes[nId];
+                if (node.owner === 'P1') {
+                    cr += node.gen.credits;
+                    en += node.gen.energy;
+                    te += node.gen.tech;
+                    inf += node.gen.influence;
+                }
+            }
+            player.credits += cr;
+            player.energy = Math.min(100, player.energy + en);
+            player.tech += te;
+            player.influence += inf;
+
+            // Recalculate standings scores
+            updateStandings();
+            updateUI();
+
+            // Spawn hostile creeps
+            spawnHostileCreeps();
+
+            if (gameTime <= 0) {
+                endGame();
+            }
+        }
+
+        function spawnHostileCreeps() {
+            // Pick a random faction P2, P3, P4
+            const hostileFactions = ['P2', 'P3', 'P4'];
+            const fac = hostileFactions[Math.floor(Math.random() * hostileFactions.length)];
+            
+            // Find a node owned by them
+            const baseNodes = Object.values(Nodes).filter(n => n.owner === fac);
+            if (baseNodes.length > 0) {
+                const spawnNode = baseNodes[Math.floor(Math.random() * baseNodes.length)];
+                // Spawn creep heading to neighbor node
+                const targetNodeId = spawnNode.neighbors[Math.floor(Math.random() * spawnNode.neighbors.length)];
+                creeps.push({
+                    x: spawnNode.x,
+                    y: spawnNode.y,
+                    faction: fac,
+                    targetNodeId,
+                    speed: 1.5,
+                    hp: 40,
+                    maxHp: 40
+                });
+            }
+        }
+
+        // Action Loop
+        function gameLoop(timestamp) {
+            if (!isGameRunning) return;
+
+            updateGamePhysics();
+            drawGame();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function updateGamePhysics() {
+            // WASD Move Controls
+            let dx = 0;
+            let dy = 0;
+            if (keys['w'] || keys['arrowup']) dy = -1;
+            if (keys['s'] || keys['arrowdown']) dy = 1;
+            if (keys['a'] || keys['arrowleft']) dx = -1;
+            if (keys['d'] || keys['arrowright']) dx = 1;
+
+            if (dx !== 0 || dy !== 0) {
+                const len = Math.hypot(dx, dy);
+                player.x += (dx / len) * player.speed;
+                player.y += (dy / len) * player.speed;
+            }
+
+            // Boundaries
+            player.x = Math.max(30, Math.min(canvas.width - 30, player.x));
+            player.y = Math.max(30, Math.min(canvas.height - 30, player.y));
+
+            // Bullets movement
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                const b = bullets[i];
+                b.x += b.vx;
+                b.y += b.vy;
+
+                // Check collision with borders
+                if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) {
+                    bullets.splice(i, 1);
+                    continue;
+                }
+
+                // Check collision with creeps (if player bullet)
+                if (b.owner === 'P1') {
+                    for (let j = creeps.length - 1; j >= 0; j--) {
+                        const c = creeps[j];
+                        const dist = Math.hypot(b.x - c.x, b.y - c.y);
+                        if (dist < 15) {
+                            c.hp -= 15;
+                            playSound('hit');
+                            bullets.splice(i, 1);
+                            
+                            // Explosion particles
+                            for(let p=0; p<5; p++) {
+                                particles.push({
+                                    x: c.x, y: c.y,
+                                    vx: (Math.random() - 0.5) * 4,
+                                    vy: (Math.random() - 0.5) * 4,
+                                    life: 30, color: '#ff3b30'
+                                });
+                            }
+
+                            if (c.hp <= 0) {
+                                creeps.splice(j, 1);
+                                player.credits += 15; // Kill reward
+                                updateUI();
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life--;
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+
+            // Creeps movement & capture
+            creeps.forEach((c, idx) => {
+                const target = Nodes[c.targetNodeId];
+                if (target) {
+                    const angle = Math.atan2(target.y - c.y, target.x - c.x);
+                    c.x += Math.cos(angle) * c.speed;
+                    c.y += Math.sin(angle) * c.speed;
+
+                    // If reached target sector, capture it
+                    const dist = Math.hypot(c.x - target.x, c.y - target.y);
+                    if (dist < 10) {
+                        target.owner = c.faction;
+                        c.targetNodeId = target.neighbors[Math.floor(Math.random() * target.neighbors.length)];
+                        playSound('capture');
+                        logTerminal(`[SECTOR] ${Factions[c.faction].name} captured node ${target.id}`);
+                        updateStandings();
+                    }
+                }
+            });
+
+            // Capture node if player stands inside
+            for (const nId in Nodes) {
+                const node = Nodes[nId];
+                const dist = Math.hypot(player.x - node.x, player.y - node.y);
+                if (dist < 28) {
+                    if (node.owner !== 'P1') {
+                        node.hp -= 0.5; // Capture tick rate
+                        if (node.hp <= 0) {
+                            node.owner = 'P1';
+                            node.hp = 100;
+                            playSound('capture');
+                            logTerminal(`[SECTOR] You captured sector ${node.id} (${node.name})!`);
+                            updateStandings();
+                        }
+                    }
+                }
+            }
+        }
+
+        function drawGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 1. Draw Grid
+            ctx.strokeStyle = 'rgba(0, 240, 255, 0.05)';
+            ctx.lineWidth = 1;
+            const gridSize = 40;
+            for (let x = 0; x < canvas.width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+
+            // 2. Draw connections
+            const connected = new Set();
+            for (const nId in Nodes) {
+                const node = Nodes[nId];
+                node.neighbors.forEach(neighborId => {
+                    const pairKey = [nId, neighborId].sort().join('-');
+                    if (!connected.has(pairKey)) {
+                        connected.add(pairKey);
+                        const neighbor = Nodes[neighborId];
+                        
+                        // Draw line
+                        ctx.strokeStyle = 'rgba(0, 240, 255, 0.15)';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(node.x, node.y);
+                        ctx.lineTo(neighbor.x, neighbor.y);
+                        ctx.stroke();
+                    }
+                });
+            }
+
+            // 3. Draw Nodes (Sectors)
+            for (const nId in Nodes) {
+                const node = Nodes[nId];
+                const color = Factions[node.owner]?.color || '#4a5568';
+                
+                // Ring
+                ctx.strokeStyle = color;
+                ctx.lineWidth = selectedNode === nId ? 4 : 2;
+                ctx.fillStyle = '#0a0d18';
+                
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, 25, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Draw capture bar if under contest
+                if (node.owner !== 'P1' && Math.hypot(player.x - node.x, player.y - node.y) < 28) {
+                    ctx.fillStyle = 'rgba(0, 240, 255, 0.3)';
+                    ctx.fillRect(node.x - 20, node.y - 35, 40 * (1 - (node.hp / 100)), 5);
+                }
+
+                // Node text
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 11px Orbitron';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(node.id, node.x, node.y - 2);
+
+                ctx.fillStyle = '#8a99ad';
+                ctx.font = '8px Inter';
+                ctx.fillText(node.type, node.x, node.y + 10);
+            }
+
+            // 4. Draw Creeps
+            creeps.forEach(c => {
+                ctx.fillStyle = Factions[c.faction].color;
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, 8, 0, Math.PI * 2);
+                ctx.fill();
+
+                // HP Bar
+                ctx.fillStyle = '#ff3b30';
+                ctx.fillRect(c.x - 10, c.y - 14, 20, 3);
+                ctx.fillStyle = '#39ff14';
+                ctx.fillRect(c.x - 10, c.y - 14, 20 * (c.hp / c.maxHp), 3);
+            });
+
+            // 5. Draw Bullets
+            bullets.forEach(b => {
+                ctx.fillStyle = b.color;
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // 6. Draw Particles
+            particles.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, 2, 2);
+            });
+
+            // 7. Draw Player Commander Node
+            ctx.fillStyle = '#ffd700'; // Nova gold
+            ctx.strokeStyle = '#00f0ff'; // Neon glow outline
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, 14, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Inner circle
+            ctx.fillStyle = '#0a0d18';
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, 6, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function logTerminal(msg) {
+            const terminal = document.getElementById('sector-terminal');
+            terminal.innerHTML += `\n> ${msg}`;
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function updateUI() {
+            document.getElementById('res-credits').innerText = player.credits;
+            document.getElementById('res-energy').innerText = player.energy;
+            document.getElementById('res-tech').innerText = player.tech;
+            document.getElementById('res-influence').innerText = player.influence;
+            document.getElementById('score-val').innerText = player.score;
+        }
+
+        function updateStandings() {
+            const list = document.getElementById('standings-list');
+            list.innerHTML = '';
+
+            // Calculate strategic score dynamically
+            const scores = { P1: 0, P2: 0, P3: 0, P4: 0 };
+            for (const nId in Nodes) {
+                const node = Nodes[nId];
+                if (node.owner) {
+                    scores[node.owner] += node.val;
+                }
+            }
+
+            // Convert resources to points
+            scores.P1 += Math.round(player.credits * 0.1 + player.energy * 0.1);
+            player.score = scores.P1;
+
+            const sorted = Object.keys(Factions).sort((a,b) => scores[b] - scores[a]);
+            sorted.forEach(fId => {
+                const faction = Factions[fId];
+                const badgeColor = faction.color;
+                const count = Object.values(Nodes).filter(n => n.owner === fId).length;
+                
+                list.innerHTML += `
+                    <div class="standing-row" style="border-left: 3px solid ${badgeColor}">
+                        <div style="font-weight: 600;">${faction.name} (${count} Sectors)</div>
+                        <div style="font-family: 'Orbitron'; font-weight: bold;">${scores[fId]}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function updateGTMatrix() {
+            const territory = Nodes[selectedNode];
+            const title = document.getElementById('matrix-title');
+            title.innerText = `Sector ${territory.id} Dynamic Matrix`;
+
+            // Calculate dynamic payouts based on local defense vs player stats
+            const defensePower = territory.defense;
+            const playerAttack = 30; // Standard command attack value
+
+            const val00 = document.getElementById('c-0-0');
+            const val01 = document.getElementById('c-0-1');
+            const val10 = document.getElementById('c-1-0');
+            const val11 = document.getElementById('c-1-1');
+
+            let c00 = { a: -30, b: -20 };
+            if (playerAttack > defensePower) {
+                c00 = { a: territory.val - 30, b: -territory.val };
+            }
+
+            const c01 = { a: territory.val - 30, b: -territory.val - 50 };
+            const c10 = { a: 0, b: -20 };
+            const c11 = { a: 0, b: territory.val - 50 };
+
+            val00.innerText = `(${c00.a}, ${c00.b})`;
+            val01.innerText = `(${c01.a}, ${c01.b})`;
+            val10.innerText = `(${c10.a}, ${c10.b})`;
+            val11.innerText = `(${c11.a}, ${c11.b})`;
+
+            // Nash highlight
+            const cells = [
+                ['cell-0-0', 'cell-0-1'],
+                ['cell-1-0', 'cell-1-1']
+            ];
+            const payoffs = [
+                [c00, c01],
+                [c10, c11]
+            ];
+
+            for (let i = 0; i < 2; i++) {
+                for (let j = 0; j < 2; j++) {
+                    const cell = document.getElementById(cells[i][j]);
+                    cell.classList.remove('nash');
+                    
+                    const current = payoffs[i][j];
+                    const aBest = current.a >= payoffs[1 - i][j].a;
+                    const bBest = current.b >= payoffs[i][1 - j].b;
+                    
+                    if (aBest && bBest) {
+                        cell.classList.add('nash');
+                    }
+                }
+            }
+        }
+
+        function endGame() {
+            isGameRunning = false;
+            clearInterval(gameInterval);
+            
+            const overlay = document.getElementById('end-overlay');
+            overlay.classList.add('active');
+
+            const results = document.getElementById('end-results');
+            results.innerHTML = `
+                <p><strong>Simulation Concluded.</strong></p>
+                <br>
+                <p>Commander Final Score: <strong>${player.score}</strong></p>
+                <p>Sectors Controlled: <strong>${Object.values(Nodes).filter(n => n.owner === 'P1').length}</strong> / 14</p>
+                <p>Final Credits: <strong>${player.credits}</strong></p>
+                <p>Final Energy: <strong>${player.energy}</strong></p>
+            `;
+        }
+
+        // Initialize UI values
+        updateStandings();
+        updateUI();
+        updateGTMatrix();
+    </script>
+</body>
+</html>
