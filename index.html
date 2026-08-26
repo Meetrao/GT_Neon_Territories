@@ -1047,13 +1047,93 @@
             const overlay = document.getElementById('end-overlay');
             overlay.classList.add('active');
 
+            // Gather all players
+            const resultsList = [];
+            
+            // Add local player
+            resultsList.push({
+                name: Factions[myFaction].name + " (You)",
+                faction: myFaction,
+                score: playerObj.score,
+                sectors: Object.values(Nodes).filter(n => n.owner === myFaction).length,
+                credits: playerObj.credits,
+                energy: playerObj.energy,
+                tech: playerObj.tech,
+                influence: playerObj.influence
+            });
+
+            // Add other players
+            for (const id in otherPlayers) {
+                const op = otherPlayers[id];
+                const opFaction = op.faction;
+                resultsList.push({
+                    name: Factions[opFaction]?.name || "Guest Player",
+                    faction: opFaction,
+                    score: op.score || 0,
+                    sectors: Object.values(Nodes).filter(n => n.owner === opFaction).length,
+                    credits: Math.round(op.score * 0.4),
+                    energy: Math.round(op.score * 0.2),
+                    tech: Math.round(op.score * 0.1),
+                    influence: Math.round(op.score * 0.1)
+                });
+            }
+
+            // Fill empty slots with simulated AI players if there are fewer than 4 players total
+            const activeFactions = resultsList.map(r => r.faction);
+            const remainingFactions = ['NOVA', 'VORTEX', 'PULSE', 'SYNTH'].filter(f => !activeFactions.includes(f));
+            
+            remainingFactions.forEach(faction => {
+                const secCount = Object.values(Nodes).filter(n => n.owner === faction).length;
+                const score = secCount * 70 + Math.floor(Math.random() * 80);
+                resultsList.push({
+                    name: Factions[faction].name + " (AI)",
+                    faction: faction,
+                    score: score,
+                    sectors: secCount,
+                    credits: Math.round(score * 0.3),
+                    energy: Math.round(score * 0.2),
+                    tech: Math.round(score * 0.1),
+                    influence: Math.round(score * 0.1)
+                });
+            });
+
+            // Sort by score descending
+            resultsList.sort((a, b) => b.score - a.score);
+
+            // Generate HTML Leaderboard
             const results = document.getElementById('end-results');
             results.innerHTML = `
-                <p><strong>Multiplayer Match Concluded.</strong></p>
-                <br>
-                <p>Your Final Score: <strong>${playerObj.score}</strong></p>
-                <p>Sectors Controlled: <strong>${Object.values(Nodes).filter(n => n.owner === myFaction).length}</strong> / 14</p>
+                <div style="font-family: 'Orbitron'; font-weight: bold; font-size: 13px; color: var(--neon-blue); border-bottom: 1px solid rgba(0, 240, 255, 0.2); padding-bottom: 8px; margin-bottom: 12px; display: flex; justify-content: space-between;">
+                    <span>RANK & FACTION</span>
+                    <span style="margin-left: auto; margin-right: 30px;">SECTORS</span>
+                    <span>SCORE</span>
+                </div>
             `;
+
+            resultsList.forEach((r, idx) => {
+                let badge = '•';
+                if (idx === 0) badge = '🥇';
+                if (idx === 1) badge = '🥈';
+                if (idx === 2) badge = '🥉';
+
+                const color = Factions[r.faction].color;
+
+                results.innerHTML += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-left: 4px solid ${color}; border-radius: 6px; padding: 10px 15px; margin-bottom: 8px; text-align: left;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 16px;">${badge}</span>
+                            <div>
+                                <div style="font-weight: bold; font-size: 12px; color: white;">${r.name}</div>
+                                <div style="font-size: 9px; color: #8a99ad; margin-top: 2px;">
+                                    Cr: ${r.credits} | En: ${r.energy} | Te: ${r.tech} | Inf: ${r.influence}
+                                </div>
+                            </div>
+                        </div>
+                        <div style="font-family: 'Orbitron'; font-weight: bold; font-size: 13px; color: #a0aec0; margin-left: auto; margin-right: 45px;">${r.sectors}</div>
+                        <div style="font-family: 'Orbitron'; font-weight: bold; font-size: 15px; color: ${color};">${r.score}</div>
+                    </div>
+                `;
+            });
         }
 
         // Initialize Sockets and UI
