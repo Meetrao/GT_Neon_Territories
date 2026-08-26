@@ -1,0 +1,38 @@
+# Unity Ignore
+[Library]/
+[Temp]/
+[Obj]/
+[Build]/
+[Builds]/
+[Logs]/
+[UserSettings]/
+MemoryCaptures/
+Recording/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Node/JavaScript Ignore
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+
+# OS/IDE Ignore
+.DS_Store
+.vscode/
+.idea/
+.history/
+.gemini/
