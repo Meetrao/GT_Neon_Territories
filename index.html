@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Territories: Real-Time Game-Theoretic Commander</title>
+    <title>Neon Territories: Real-Time Multiplayer Game-Theoretic Commander</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -62,7 +62,7 @@
 
         .logo span {
             font-size: 9px;
-            color: var(--text-muted);
+            color: #8a99ad;
             letter-spacing: 2px;
             text-transform: uppercase;
             display: block;
@@ -134,7 +134,6 @@
             justify-content: space-between;
         }
 
-        /* Controls Panel */
         .controls-info {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -156,7 +155,7 @@
             font-weight: bold;
         }
 
-        /* Abilities Grid */
+        /* Abilities */
         .ability-btn {
             background: rgba(0, 0, 0, 0.5);
             border: 1px solid var(--border-neon);
@@ -173,13 +172,11 @@
         .ability-btn:hover {
             background: rgba(0, 240, 255, 0.1);
             border-color: var(--neon-blue);
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
         }
 
         .ability-btn.active {
             border-color: var(--neon-pink);
             background: rgba(255, 0, 127, 0.1);
-            box-shadow: 0 0 10px rgba(255, 0, 127, 0.3);
         }
 
         .ability-title {
@@ -190,7 +187,7 @@
 
         .ability-cost {
             font-size: 9px;
-            color: var(--text-muted);
+            color: #8a99ad;
             margin-top: 2px;
             font-family: 'Orbitron', sans-serif;
         }
@@ -223,7 +220,6 @@
         .matrix-cell.nash {
             border-color: var(--neon-green);
             background: rgba(57, 255, 20, 0.08);
-            box-shadow: 0 0 8px rgba(57, 255, 20, 0.2);
         }
 
         .matrix-header {
@@ -232,14 +228,11 @@
             padding: 4px;
         }
 
-        /* Real-Time Canvas Area */
+        /* Real-Time Canvas */
         .canvas-area {
             flex-grow: 1;
             position: relative;
             background: radial-gradient(circle, #0e1220 0%, #06080e 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         #gameCanvas {
@@ -248,7 +241,7 @@
             display: block;
         }
 
-        /* Overlay */
+        /* Overlays */
         .overlay {
             position: fixed;
             top: 0;
@@ -292,13 +285,29 @@
             font-weight: 700;
             cursor: pointer;
             text-transform: uppercase;
-            margin-top: 20px;
+            margin-top: 15px;
             box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+            width: 100%;
         }
 
         .btn:hover {
             box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
             transform: translateY(-1px);
+        }
+
+        .input-code {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--border-neon);
+            border-radius: 6px;
+            color: white;
+            padding: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 4px;
+            outline: none;
+            width: 100%;
+            margin-top: 10px;
         }
 
         .standing-row {
@@ -310,6 +319,16 @@
             margin-bottom: 6px;
             font-size: 12px;
         }
+
+        /* Lobby Info */
+        .lobby-players-list {
+            margin: 15px 0;
+            text-align: left;
+            background: rgba(0,0,0,0.4);
+            border: 1px dashed var(--border-neon);
+            padding: 10px;
+            border-radius: 6px;
+        }
     </style>
 </head>
 <body>
@@ -317,7 +336,7 @@
     <header>
         <div class="logo">
             NEON TERRITORIES
-            <span>Real-time Strategic allocation</span>
+            <span>Real-time Multiplayer Matchmaker</span>
         </div>
         <div class="hud-stats">
             <div class="hud-box">
@@ -325,7 +344,7 @@
                 <div class="hud-val" id="time-val">03:00</div>
             </div>
             <div class="hud-box">
-                <div class="hud-label">Commander Score</div>
+                <div class="hud-label">Your Score</div>
                 <div class="hud-val" id="score-val" style="color: var(--neon-pink);">0</div>
             </div>
         </div>
@@ -334,12 +353,9 @@
     <div class="game-layout">
         <!-- Left Panel: Faction Status & Abilities -->
         <div class="sidebar">
-            <div class="panel-title">COMMANDER PROFILE</div>
-            <div class="controls-info">
-                <strong>Controls:</strong><br>
-                • Move Commander: <span class="key-badge">W</span> <span class="key-badge">A</span> <span class="key-badge">S</span> <span class="key-badge">D</span> / Mouse Click<br>
-                • Aim & Attack: <span class="key-badge">Mouse Movement</span> & <span class="key-badge">Left Click</span><br>
-                • Capture: Stand inside sectors to capture them.
+            <div class="panel-title">MULTIPLAYER STATUS</div>
+            <div style="font-size: 11px; color: var(--neon-green); margin-bottom: 15px;" id="multiplayer-status-text">
+                CONNECTED: Room Code - 
             </div>
 
             <div class="panel-title">RESOURCES</div>
@@ -362,22 +378,22 @@
                 </div>
             </div>
 
-            <div class="panel-title">SPECIAL ABILITIES</div>
+            <div class="panel-title">TACTICAL COMMANDS</div>
             <div class="ability-btn active" id="ab-strike" onclick="setAbility('strike')">
-                <span class="ability-title">🎯 Strike Team (VORTEX)</span>
+                <span class="ability-title">🎯 Deploy Strike Force</span>
                 <span class="ability-cost">Cost: 30 Energy</span>
             </div>
             <div class="ability-btn" id="ab-shield" onclick="setAbility('shield')">
-                <span class="ability-title">🛡️ Shield Barrier (Defense)</span>
+                <span class="ability-title">🛡️ Fortify Defense</span>
                 <span class="ability-cost">Cost: 20 Energy / 20 Credits</span>
             </div>
             <div class="ability-btn" id="ab-upgrade" onclick="setAbility('upgrade')">
-                <span class="ability-title">📈 Invest & Upgrade (NOVA)</span>
+                <span class="ability-title">📈 Invest in Node</span>
                 <span class="ability-cost">Cost: 50 Credits</span>
             </div>
         </div>
 
-        <!-- Center Game View Canvas -->
+        <!-- Center Canvas -->
         <div class="canvas-area">
             <canvas id="gameCanvas"></canvas>
         </div>
@@ -387,7 +403,7 @@
             <div class="panel-title">DYNAMIC PAYOFF MATRIX</div>
             <div class="matrix-container">
                 <div style="font-size: 11px; font-weight: bold; margin-bottom: 5px;" id="matrix-title">Sector Contest</div>
-                <div style="font-size: 9px; color: #8a99ad; margin-bottom: 8px;" id="matrix-subtitle">Aggressor vs Defender utilities.</div>
+                <div style="font-size: 9px; color: #8a99ad; margin-bottom: 8px;" id="matrix-subtitle">Contest values vs defenders.</div>
                 
                 <div class="matrix-grid">
                     <div></div>
@@ -414,32 +430,51 @@
 
             <div class="panel-title">FACTION SECTORS</div>
             <div class="standings-list" id="standings-list" style="flex-grow: 1;">
-                <!-- Standing details -->
+                <!-- Standings updated in socket sync -->
             </div>
 
             <div class="panel-title">SECTOR LOGS</div>
             <div id="sector-terminal" style="font-family: 'Share Tech Mono', monospace; font-size: 10px; height: 120px; overflow-y: auto; background: rgba(0,0,0,0.4); padding: 5px; border-radius: 4px; border: 1px solid var(--border-neon); color: #00ff66;">
-                [Game Running] Move your Commander node using WASD controls. Capture sectors to generate resources.
+                [Game Running] Lobby connected. Spawning servers.
             </div>
         </div>
     </div>
 
-    <!-- Start Overlay Screen -->
+    <!-- Start Overlay Screen / Multiplayer Lobby -->
     <div class="overlay active" id="overlay">
-        <div class="overlay-box">
-            <h1 class="logo" style="font-size: 32px; margin-bottom: 20px;">NEON TERRITORIES</h1>
-            <p style="font-size: 12px; margin-bottom: 30px; line-height: 1.6; color: #a0aec0;">
-                Welcome Commander. You control the <strong>Nova Corp (Yellow)</strong> hero unit. 
-                Move around the map, capture the 14 territories, and defend your bases from Vortex Syndicate (Red), Pulse (Cyan), and Synth (Purple) creep forces.
+        <div class="overlay-box" id="lobby-panel">
+            <h1 class="logo" style="font-size: 28px; margin-bottom: 20px;">NEON TERRITORIES</h1>
+            <p style="font-size: 11px; margin-bottom: 20px; color: #a0aec0;">
+                Select Faction & Lobby Action
             </p>
-            <button class="btn" onclick="startPlay()">Deploy Faction</button>
+
+            <button class="btn" style="margin-bottom: 10px;" onclick="chooseHost()">Host A New Server</button>
+            <div style="margin: 10px 0; color: #8a99ad;">-- OR --</div>
+            <input type="text" class="input-code" id="joinCode" placeholder="ENTER ROOM CODE">
+            <button class="btn" onclick="chooseJoin()">Join Active Server</button>
+        </div>
+
+        <div class="overlay-box" id="waiting-panel" style="display: none;">
+            <h2 class="logo" style="font-size: 24px; margin-bottom: 15px;">WAITING LOBBY</h2>
+            <div style="font-size: 20px; font-weight: bold; color: var(--neon-pink); letter-spacing: 2px;" id="room-code-display">
+                CODE: ----
+            </div>
+            
+            <div class="lobby-players-list" id="lobby-players">
+                Waiting for matchmaker connection...
+            </div>
+
+            <button class="btn" id="start-game-btn" style="display: none;" onclick="sendStartGame()">Start Match</button>
+            <div style="font-size: 10px; color: var(--text-muted); margin-top: 10px;" id="wait-message-info">
+                Waiting for host to deploy...
+            </div>
         </div>
     </div>
 
     <!-- Final Results Overlay -->
     <div class="overlay" id="end-overlay">
         <div class="overlay-box">
-            <h2 class="logo" style="font-size: 28px; margin-bottom: 20px;" id="end-title">MISSION COMPLETE</h2>
+            <h2 class="logo" style="font-size: 28px; margin-bottom: 20px;">MISSION COMPLETE</h2>
             <div id="end-results" style="font-size: 13px; text-align: left; margin: 20px 0; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
                 <!-- Results -->
             </div>
@@ -448,81 +483,76 @@
     </div>
 
     <script>
-        // Web Audio Synthesizer for Retro Game sounds
+        // Web Audio Synthesizer
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
             try {
                 if (audioCtx.state === 'suspended') audioCtx.resume();
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
+                osc.connect(gain); gain.connect(audioCtx.destination);
 
                 if (type === 'laser') {
                     osc.type = 'sawtooth';
                     osc.frequency.setValueAtTime(800, audioCtx.currentTime);
                     osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.15);
-                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.15);
                 } 
                 else if (type === 'hit') {
                     osc.type = 'triangle';
                     osc.frequency.setValueAtTime(120, audioCtx.currentTime);
-                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.15);
                 }
                 else if (type === 'capture') {
                     osc.type = 'sine';
-                    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-                    osc.frequency.setValueAtTime(600, audioCtx.currentTime + 0.1);
-                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.2);
+                    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(800, audioCtx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.2);
                 }
             } catch(e) {}
         }
 
-        // Setup Factions
+        // Factions
         const Factions = {
-            P1: { id: 'P1', name: 'Nova Corp', color: '#ffd700', bg: 'rgba(255,215,0,0.1)' },
-            P2: { id: 'P2', name: 'Vortex Syndicate', color: '#ff3b30', bg: 'rgba(255,59,48,0.1)' },
-            P3: { id: 'P3', name: 'Pulse Network', color: '#00f0ff', bg: 'rgba(0,240,255,0.1)' },
-            P4: { id: 'P4', name: 'Synth Nexus', color: '#af52de', bg: 'rgba(175,82,222,0.1)' }
+            NOVA: { name: 'Nova Corp', color: '#ffd700' },
+            VORTEX: { name: 'Vortex Syndicate', color: '#ff3b30' },
+            PULSE: { name: 'Pulse Network', color: '#00f0ff' },
+            SYNTH: { name: 'Synth Nexus', color: '#af52de' }
         };
 
-        // Complete Map configuration
+        // 14 Node Territories Configuration
         const Nodes = {
-            T01: { id: 'T01', name: 'Grid North', type: 'Energy', x: 400, y: 100, owner: 'P1', hp: 100, val: 60, gen: { credits: 0, energy: 30, tech: 0, influence: 0 }, neighbors: ['T02', 'T03', 'T04'] },
-            T02: { id: 'T02', name: 'Silicon Valley', type: 'Technology', x: 650, y: 200, owner: 'P3', hp: 100, val: 70, gen: { credits: 0, energy: 0, tech: 20, influence: 0 }, neighbors: ['T01', 'T05', 'T08'] },
-            T03: { id: 'T03', name: 'Finance Sect.', type: 'Credit', x: 150, y: 200, owner: 'P1', hp: 100, val: 65, gen: { credits: 40, energy: 0, tech: 0, influence: 0 }, neighbors: ['T01', 'T06', 'T08'] },
-            T04: { id: 'T04', name: 'Citadel West', type: 'Defense', x: 400, y: 300, owner: 'P2', hp: 100, val: 80, gen: { credits: 0, energy: 0, tech: 0, influence: 10 }, neighbors: ['T01', 'T05', 'T11'] },
+            T01: { id: 'T01', name: 'Grid North', type: 'Energy', x: 400, y: 100, owner: 'NOVA', hp: 100, val: 60, gen: { credits: 0, energy: 30, tech: 0, influence: 0 }, neighbors: ['T02', 'T03', 'T04'] },
+            T02: { id: 'T02', name: 'Silicon Valley', type: 'Technology', x: 650, y: 200, owner: 'PULSE', hp: 100, val: 70, gen: { credits: 0, energy: 0, tech: 20, influence: 0 }, neighbors: ['T01', 'T05', 'T08'] },
+            T03: { id: 'T03', name: 'Finance Sect.', type: 'Credit', x: 150, y: 200, owner: 'NOVA', hp: 100, val: 65, gen: { credits: 40, energy: 0, tech: 0, influence: 0 }, neighbors: ['T01', 'T06', 'T08'] },
+            T04: { id: 'T04', name: 'Citadel West', type: 'Defense', x: 400, y: 300, owner: 'VORTEX', hp: 100, val: 80, gen: { credits: 0, energy: 0, tech: 0, influence: 10 }, neighbors: ['T01', 'T05', 'T11'] },
             T05: { id: 'T05', name: 'Industry Belt', type: 'Energy', x: 600, y: 380, owner: null, hp: 100, val: 75, gen: { credits: 0, energy: 30, tech: 0, influence: 0 }, neighbors: ['T02', 'T04', 'T07', 'T08'] },
             T06: { id: 'T06', name: 'Commercial Hub', type: 'Credit', x: 200, y: 380, owner: null, hp: 100, val: 70, gen: { credits: 40, energy: 0, tech: 0, influence: 0 }, neighbors: ['T03', 'T07', 'T09', 'T08'] },
             T07: { id: 'T07', name: 'Research Lab', type: 'Technology', x: 400, y: 500, owner: null, hp: 100, val: 85, gen: { credits: 0, energy: 0, tech: 20, influence: 0 }, neighbors: ['T05', 'T06', 'T10'] },
             T08: { id: 'T08', name: 'Central Core', type: 'Core', x: 400, y: 200, owner: null, hp: 100, val: 150, gen: { credits: 15, energy: 15, tech: 10, influence: 10 }, neighbors: ['T02', 'T03', 'T05', 'T06', 'T13', 'T14'] },
-            T09: { id: 'T09', name: 'Harbor Dist.', type: 'Credit', x: 150, y: 550, owner: 'P4', hp: 100, val: 65, gen: { credits: 40, energy: 0, tech: 0, influence: 0 }, neighbors: ['T06', 'T12', 'T13'] },
-            T10: { id: 'T10', name: 'Tech Plaza', type: 'Technology', x: 650, y: 550, owner: 'P3', hp: 100, val: 70, gen: { credits: 0, energy: 0, tech: 20, influence: 0 }, neighbors: ['T07', 'T11', 'T14'] },
-            T11: { id: 'T11', name: 'Power Grid', type: 'Energy', x: 650, y: 380, owner: 'P2', hp: 100, val: 60, gen: { credits: 0, energy: 30, tech: 0, influence: 0 }, neighbors: ['T04', 'T10', 'T14'] },
-            T12: { id: 'T12', name: 'Gate East', type: 'Defense', x: 150, y: 380, owner: 'P4', hp: 100, val: 75, gen: { credits: 0, energy: 0, tech: 0, influence: 10 }, neighbors: ['T09', 'T13', 'T14'] },
+            T09: { id: 'T09', name: 'Harbor Dist.', type: 'Credit', x: 150, y: 550, owner: 'SYNTH', hp: 100, val: 65, gen: { credits: 40, energy: 0, tech: 0, influence: 0 }, neighbors: ['T06', 'T12', 'T13'] },
+            T10: { id: 'T10', name: 'Tech Plaza', type: 'Technology', x: 650, y: 550, owner: 'PULSE', hp: 100, val: 70, gen: { credits: 0, energy: 0, tech: 20, influence: 0 }, neighbors: ['T07', 'T11', 'T14'] },
+            T11: { id: 'T11', name: 'Power Grid', type: 'Energy', x: 650, y: 380, owner: 'VORTEX', hp: 100, val: 60, gen: { credits: 0, energy: 30, tech: 0, influence: 0 }, neighbors: ['T04', 'T10', 'T14'] },
+            T12: { id: 'T12', name: 'Gate East', type: 'Defense', x: 150, y: 380, owner: 'SYNTH', hp: 100, val: 75, gen: { credits: 0, energy: 0, tech: 0, influence: 10 }, neighbors: ['T09', 'T13', 'T14'] },
             T13: { id: 'T13', name: 'Neon Blvd', type: 'Credit', x: 280, y: 620, owner: null, hp: 100, val: 68, gen: { credits: 40, energy: 0, tech: 0, influence: 0 }, neighbors: ['T08', 'T09', 'T12', 'T14'] },
             T14: { id: 'T14', name: 'Sub-Core', type: 'Core', x: 520, y: 620, owner: null, hp: 100, val: 130, gen: { credits: 15, energy: 15, tech: 10, influence: 10 }, neighbors: ['T08', 'T10', 'T11', 'T12', 'T13'] }
         };
 
-        // Canvas & Player Setup
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        let player = {
+        // Local Player state
+        let myId = null;
+        let myFaction = 'NOVA';
+        let isHost = false;
+        let roomCode = null;
+
+        let playerObj = {
             x: 400,
             y: 100,
-            targetX: 400,
-            targetY: 100,
-            speed: 4,
             credits: 100,
             energy: 80,
             tech: 20,
@@ -531,31 +561,35 @@
             activeAbility: 'strike'
         };
 
+        // Other Connected Players (Sync from Socket)
+        let otherPlayers = {}; // id -> { faction, x, y, score }
+
+        // Socket Matchmaking Configuration
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = window.location.hostname ? `${wsProtocol}//${window.location.hostname}:8080` : 'ws://localhost:8080';
+        let socket = null;
+
         const keys = {};
         const creeps = [];
         const bullets = [];
         const particles = [];
-        let gameTime = 180; // 3 minutes in seconds
-        let gameInterval = null;
-        let lastTime = 0;
-        let selectedNode = 'T08';
+        let gameTime = 180;
         let isGameRunning = false;
+        let selectedNode = 'T08';
 
-        // Input listeners
         window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
         window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
         canvas.addEventListener('click', e => {
+            if (!isGameRunning) return;
             const rect = canvas.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
             const clickY = e.clientY - rect.top;
 
-            // Check if clicking a Node to select it
             let clickedNode = null;
             for (const nId in Nodes) {
                 const node = Nodes[nId];
-                const dist = Math.hypot(clickX - node.x, clickY - node.y);
-                if (dist < 28) {
+                if (Math.hypot(clickX - node.x, clickY - node.y) < 28) {
                     clickedNode = nId;
                     break;
                 }
@@ -566,40 +600,184 @@
                 playSound('capture');
                 updateGTMatrix();
             } else {
-                // Shoot a laser bullet towards click location
-                if (player.energy >= 5) {
-                    player.energy -= 5;
+                if (playerObj.energy >= 5) {
+                    playerObj.energy -= 5;
                     updateUI();
-                    shootBullet(player.x, player.y, clickX, clickY, 'P1');
+                    
+                    // Spawn local bullet
+                    const angle = Math.atan2(clickY - playerObj.y, clickX - playerObj.x);
+                    bullets.push({
+                        x: playerObj.x, y: playerObj.y,
+                        vx: Math.cos(angle) * 8, vy: Math.sin(angle) * 8,
+                        owner: myFaction, color: Factions[myFaction].color
+                    });
+                    playSound('laser');
+
+                    // Broadcast shoot to socket
+                    sendSocketMessage({
+                        type: 'shoot',
+                        bullet: { x: playerObj.x, y: playerObj.y, vx: Math.cos(angle) * 8, vy: Math.sin(angle) * 8 }
+                    });
                 }
             }
         });
 
-        function shootBullet(sx, sy, tx, ty, owner) {
-            const angle = Math.atan2(ty - sy, tx - sx);
-            bullets.push({
-                x: sx,
-                y: sy,
-                vx: Math.cos(angle) * 8,
-                vy: Math.sin(angle) * 8,
-                owner,
-                color: owner === 'P1' ? '#ffd700' : Factions[owner]?.color || '#ffffff'
-            });
-            playSound('laser');
+        // Initialize Sockets
+        function initSocket() {
+            socket = new WebSocket(wsUrl);
+
+            socket.onopen = () => {
+                console.log('[SOCKET] Connected to matchmaker');
+            };
+
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+
+                switch (data.type) {
+                    case 'hosted':
+                        roomCode = data.roomCode;
+                        myId = data.playerId;
+                        myFaction = data.faction;
+                        isHost = true;
+                        
+                        document.getElementById('lobby-panel').style.display = 'none';
+                        document.getElementById('waiting-panel').style.display = 'block';
+                        document.getElementById('room-code-display').innerText = `CODE: ${roomCode}`;
+                        document.getElementById('start-game-btn').style.display = 'block';
+                        document.getElementById('lobby-players').innerHTML = `
+                            <p style="color: var(--neon-green)">👑 ${Factions[myFaction].name} (You - Host)</p>
+                        `;
+                        break;
+
+                    case 'joined':
+                        roomCode = data.roomCode;
+                        myId = data.playerId;
+                        myFaction = data.faction;
+                        isHost = false;
+
+                        document.getElementById('lobby-panel').style.display = 'none';
+                        document.getElementById('waiting-panel').style.display = 'block';
+                        document.getElementById('room-code-display').innerText = `CODE: ${roomCode}`;
+                        document.getElementById('start-game-btn').style.display = 'none';
+                        document.getElementById('wait-message-info').innerText = 'Waiting for Host to deploy game...';
+                        updateLobbyPlayersList(data.playersList);
+                        break;
+
+                    case 'player_joined':
+                        updateLobbyPlayersList(data.playersList);
+                        logTerminal(`Player joined room.`);
+                        break;
+
+                    case 'player_left':
+                        updateLobbyPlayersList(data.playersList);
+                        logTerminal(`Player disconnected.`);
+                        break;
+
+                    case 'started':
+                        startGame();
+                        break;
+
+                    case 'player_state':
+                        if (!otherPlayers[data.id]) otherPlayers[data.id] = {};
+                        otherPlayers[data.id].x = data.state.x;
+                        otherPlayers[data.id].y = data.state.y;
+                        otherPlayers[data.id].score = data.state.score;
+                        otherPlayers[data.id].faction = data.state.faction;
+                        break;
+
+                    case 'bullet_fired':
+                        bullets.push({
+                            x: data.bullet.x, y: data.bullet.y,
+                            vx: data.bullet.vx, vy: data.bullet.vy,
+                            owner: data.faction, color: Factions[data.faction]?.color || '#ffffff'
+                        });
+                        playSound('laser');
+                        break;
+
+                    case 'sector_captured':
+                        Nodes[data.nodeId].owner = data.owner;
+                        playSound('capture');
+                        logTerminal(`[SECTOR] Sector ${data.nodeId} captured by ${Factions[data.owner]?.name || 'Neutral'}`);
+                        updateStandings();
+                        break;
+
+                    case 'creeps_sync':
+                        // Sync creeps array and timer from Host
+                        gameTime = data.timeRemaining;
+                        
+                        // Local formatting
+                        const mins = Math.floor(gameTime / 60).toString().padStart(2, '0');
+                        const secs = (gameTime % 60).toString().padStart(2, '0');
+                        document.getElementById('time-val').innerText = `${mins}:${secs}`;
+                        break;
+                }
+            };
+        }
+
+        function updateLobbyPlayersList(list) {
+            const container = document.getElementById('lobby-players');
+            container.innerHTML = list.map((p, idx) => {
+                const label = p.id === myId ? '(You)' : '';
+                const role = idx === 0 ? '👑' : '•';
+                return `<p>${role} ${Factions[p.faction].name} ${label}</p>`;
+            }).join('');
+        }
+
+        function chooseHost() {
+            if (!socket || socket.readyState !== 1) {
+                alert('Connection to server loading...');
+                return;
+            }
+            sendSocketMessage({ type: 'host', faction: 'NOVA' });
+        }
+
+        function chooseJoin() {
+            if (!socket || socket.readyState !== 1) {
+                alert('Connection to server loading...');
+                return;
+            }
+            const code = document.getElementById('joinCode').value;
+            if (!code) {
+                alert('Please enter a room code');
+                return;
+            }
+            sendSocketMessage({ type: 'join', roomCode: code });
+        }
+
+        function sendStartGame() {
+            sendSocketMessage({ type: 'start' });
+        }
+
+        function sendSocketMessage(obj) {
+            if (socket && socket.readyState === 1) {
+                socket.send(JSON.stringify(obj));
+            }
         }
 
         function setAbility(type) {
-            player.activeAbility = type;
+            playerObj.activeAbility = type;
             document.getElementById('ab-strike').classList.toggle('active', type === 'strike');
             document.getElementById('ab-shield').classList.toggle('active', type === 'shield');
             document.getElementById('ab-upgrade').classList.toggle('active', type === 'upgrade');
         }
 
-        function startPlay() {
+        function startGame() {
             document.getElementById('overlay').classList.remove('active');
             isGameRunning = true;
             resizeCanvas();
-            gameInterval = setInterval(gameTimerTick, 1000);
+            
+            // Set starting position based on faction base
+            const factionBase = Object.values(Nodes).find(n => n.owner === myFaction);
+            if (factionBase) {
+                playerObj.x = factionBase.x;
+                playerObj.y = factionBase.y;
+            }
+
+            document.getElementById('multiplayer-status-text').innerText = `CONNECTED: Room Code - ${roomCode}`;
+
+            if (isHost) {
+                setInterval(gameTimerTick, 1000);
+            }
             requestAnimationFrame(gameLoop);
         }
 
@@ -607,70 +785,47 @@
             canvas.width = canvas.parentElement.clientWidth;
             canvas.height = canvas.parentElement.clientHeight;
         }
-        window.addEventListener('resize', resizeCanvas);
 
-        // Timer Tick
         function gameTimerTick() {
             if (!isGameRunning) return;
             gameTime--;
-            
-            // Format time
+
+            // Sync down from host
+            sendSocketMessage({
+                type: 'creeps',
+                creeps: [], // simple structural relay
+                timeRemaining: gameTime
+            });
+
+            // Local formatting
             const mins = Math.floor(gameTime / 60).toString().padStart(2, '0');
             const secs = (gameTime % 60).toString().padStart(2, '0');
             document.getElementById('time-val').innerText = `${mins}:${secs}`;
 
-            // Generate resources from captured sectors
+            // Resource allocation
             let cr = 0, en = 0, te = 0, inf = 0;
             for (const nId in Nodes) {
                 const node = Nodes[nId];
-                if (node.owner === 'P1') {
+                if (node.owner === myFaction) {
                     cr += node.gen.credits;
                     en += node.gen.energy;
                     te += node.gen.tech;
                     inf += node.gen.influence;
                 }
             }
-            player.credits += cr;
-            player.energy = Math.min(100, player.energy + en);
-            player.tech += te;
-            player.influence += inf;
+            playerObj.credits += cr;
+            playerObj.energy = Math.min(100, playerObj.energy + en);
+            playerObj.tech += te;
+            playerObj.influence += inf;
 
-            // Recalculate standings scores
             updateStandings();
             updateUI();
-
-            // Spawn hostile creeps
-            spawnHostileCreeps();
 
             if (gameTime <= 0) {
                 endGame();
             }
         }
 
-        function spawnHostileCreeps() {
-            // Pick a random faction P2, P3, P4
-            const hostileFactions = ['P2', 'P3', 'P4'];
-            const fac = hostileFactions[Math.floor(Math.random() * hostileFactions.length)];
-            
-            // Find a node owned by them
-            const baseNodes = Object.values(Nodes).filter(n => n.owner === fac);
-            if (baseNodes.length > 0) {
-                const spawnNode = baseNodes[Math.floor(Math.random() * baseNodes.length)];
-                // Spawn creep heading to neighbor node
-                const targetNodeId = spawnNode.neighbors[Math.floor(Math.random() * spawnNode.neighbors.length)];
-                creeps.push({
-                    x: spawnNode.x,
-                    y: spawnNode.y,
-                    faction: fac,
-                    targetNodeId,
-                    speed: 1.5,
-                    hp: 40,
-                    maxHp: 40
-                });
-            }
-        }
-
-        // Action Loop
         function gameLoop(timestamp) {
             if (!isGameRunning) return;
 
@@ -681,110 +836,54 @@
         }
 
         function updateGamePhysics() {
-            // WASD Move Controls
-            let dx = 0;
-            let dy = 0;
-            if (keys['w'] || keys['arrowup']) dy = -1;
-            if (keys['s'] || keys['arrowdown']) dy = 1;
-            if (keys['a'] || keys['arrowleft']) dx = -1;
-            if (keys['d'] || keys['arrowright']) dx = 1;
+            let dx = 0, dy = 0;
+            if (keys['w']) dy = -1;
+            if (keys['s']) dy = 1;
+            if (keys['a']) dx = -1;
+            if (keys['d']) dx = 1;
 
             if (dx !== 0 || dy !== 0) {
                 const len = Math.hypot(dx, dy);
-                player.x += (dx / len) * player.speed;
-                player.y += (dy / len) * player.speed;
+                playerObj.x += (dx / len) * 4;
+                playerObj.y += (dy / len) * 4;
+
+                // Broadcast player position to other clients
+                sendSocketMessage({
+                    type: 'update_state',
+                    state: { x: playerObj.x, y: playerObj.y, score: playerObj.score, faction: myFaction }
+                });
             }
 
-            // Boundaries
-            player.x = Math.max(30, Math.min(canvas.width - 30, player.x));
-            player.y = Math.max(30, Math.min(canvas.height - 30, player.y));
+            playerObj.x = Math.max(30, Math.min(canvas.width - 30, playerObj.x));
+            playerObj.y = Math.max(30, Math.min(canvas.height - 30, playerObj.y));
 
-            // Bullets movement
+            // Move bullets
             for (let i = bullets.length - 1; i >= 0; i--) {
                 const b = bullets[i];
                 b.x += b.vx;
                 b.y += b.vy;
 
-                // Check collision with borders
                 if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) {
                     bullets.splice(i, 1);
-                    continue;
-                }
-
-                // Check collision with creeps (if player bullet)
-                if (b.owner === 'P1') {
-                    for (let j = creeps.length - 1; j >= 0; j--) {
-                        const c = creeps[j];
-                        const dist = Math.hypot(b.x - c.x, b.y - c.y);
-                        if (dist < 15) {
-                            c.hp -= 15;
-                            playSound('hit');
-                            bullets.splice(i, 1);
-                            
-                            // Explosion particles
-                            for(let p=0; p<5; p++) {
-                                particles.push({
-                                    x: c.x, y: c.y,
-                                    vx: (Math.random() - 0.5) * 4,
-                                    vy: (Math.random() - 0.5) * 4,
-                                    life: 30, color: '#ff3b30'
-                                });
-                            }
-
-                            if (c.hp <= 0) {
-                                creeps.splice(j, 1);
-                                player.credits += 15; // Kill reward
-                                updateUI();
-                            }
-                            break;
-                        }
-                    }
                 }
             }
-
-            // Particles
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const p = particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life--;
-                if (p.life <= 0) particles.splice(i, 1);
-            }
-
-            // Creeps movement & capture
-            creeps.forEach((c, idx) => {
-                const target = Nodes[c.targetNodeId];
-                if (target) {
-                    const angle = Math.atan2(target.y - c.y, target.x - c.x);
-                    c.x += Math.cos(angle) * c.speed;
-                    c.y += Math.sin(angle) * c.speed;
-
-                    // If reached target sector, capture it
-                    const dist = Math.hypot(c.x - target.x, c.y - target.y);
-                    if (dist < 10) {
-                        target.owner = c.faction;
-                        c.targetNodeId = target.neighbors[Math.floor(Math.random() * target.neighbors.length)];
-                        playSound('capture');
-                        logTerminal(`[SECTOR] ${Factions[c.faction].name} captured node ${target.id}`);
-                        updateStandings();
-                    }
-                }
-            });
 
             // Capture node if player stands inside
             for (const nId in Nodes) {
                 const node = Nodes[nId];
-                const dist = Math.hypot(player.x - node.x, player.y - node.y);
-                if (dist < 28) {
-                    if (node.owner !== 'P1') {
-                        node.hp -= 0.5; // Capture tick rate
-                        if (node.hp <= 0) {
-                            node.owner = 'P1';
-                            node.hp = 100;
-                            playSound('capture');
-                            logTerminal(`[SECTOR] You captured sector ${node.id} (${node.name})!`);
-                            updateStandings();
-                        }
+                const dist = Math.hypot(playerObj.x - node.x, playerObj.y - node.y);
+                if (dist < 28 && node.owner !== myFaction) {
+                    node.hp -= 0.5;
+                    if (node.hp <= 0) {
+                        node.owner = myFaction;
+                        node.hp = 100;
+                        
+                        // Send capture update via socket
+                        sendSocketMessage({
+                            type: 'capture',
+                            nodeId: node.id,
+                            owner: myFaction
+                        });
                     }
                 }
             }
@@ -793,24 +892,7 @@
         function drawGame() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // 1. Draw Grid
-            ctx.strokeStyle = 'rgba(0, 240, 255, 0.05)';
-            ctx.lineWidth = 1;
-            const gridSize = 40;
-            for (let x = 0; x < canvas.width; x += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, canvas.height);
-                ctx.stroke();
-            }
-            for (let y = 0; y < canvas.height; y += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
-                ctx.stroke();
-            }
-
-            // 2. Draw connections
+            // Draw connections
             const connected = new Set();
             for (const nId in Nodes) {
                 const node = Nodes[nId];
@@ -819,8 +901,6 @@
                     if (!connected.has(pairKey)) {
                         connected.add(pairKey);
                         const neighbor = Nodes[neighborId];
-                        
-                        // Draw line
                         ctx.strokeStyle = 'rgba(0, 240, 255, 0.15)';
                         ctx.lineWidth = 2;
                         ctx.beginPath();
@@ -831,12 +911,11 @@
                 });
             }
 
-            // 3. Draw Nodes (Sectors)
+            // Draw Node bases
             for (const nId in Nodes) {
                 const node = Nodes[nId];
                 const color = Factions[node.owner]?.color || '#4a5568';
                 
-                // Ring
                 ctx.strokeStyle = color;
                 ctx.lineWidth = selectedNode === nId ? 4 : 2;
                 ctx.fillStyle = '#0a0d18';
@@ -847,12 +926,11 @@
                 ctx.stroke();
 
                 // Draw capture bar if under contest
-                if (node.owner !== 'P1' && Math.hypot(player.x - node.x, player.y - node.y) < 28) {
+                if (node.owner !== myFaction && Math.hypot(playerObj.x - node.x, playerObj.y - node.y) < 28) {
                     ctx.fillStyle = 'rgba(0, 240, 255, 0.3)';
                     ctx.fillRect(node.x - 20, node.y - 35, 40 * (1 - (node.hp / 100)), 5);
                 }
 
-                // Node text
                 ctx.fillStyle = 'white';
                 ctx.font = 'bold 11px Orbitron';
                 ctx.textAlign = 'center';
@@ -864,21 +942,21 @@
                 ctx.fillText(node.type, node.x, node.y + 10);
             }
 
-            // 4. Draw Creeps
-            creeps.forEach(c => {
-                ctx.fillStyle = Factions[c.faction].color;
+            // Draw other players
+            for (const id in otherPlayers) {
+                const op = otherPlayers[id];
+                ctx.fillStyle = Factions[op.faction]?.color || '#ffffff';
                 ctx.beginPath();
-                ctx.arc(c.x, c.y, 8, 0, Math.PI * 2);
+                ctx.arc(op.x, op.y, 14, 0, Math.PI * 2);
                 ctx.fill();
 
-                // HP Bar
-                ctx.fillStyle = '#ff3b30';
-                ctx.fillRect(c.x - 10, c.y - 14, 20, 3);
-                ctx.fillStyle = '#39ff14';
-                ctx.fillRect(c.x - 10, c.y - 14, 20 * (c.hp / c.maxHp), 3);
-            });
+                // Draw badge name
+                ctx.fillStyle = '#a0aec0';
+                ctx.font = '8px Orbitron';
+                ctx.fillText(Factions[op.faction]?.name || 'Creep', op.x, op.y - 20);
+            }
 
-            // 5. Draw Bullets
+            // Draw bullets
             bullets.forEach(b => {
                 ctx.fillStyle = b.color;
                 ctx.beginPath();
@@ -886,25 +964,18 @@
                 ctx.fill();
             });
 
-            // 6. Draw Particles
-            particles.forEach(p => {
-                ctx.fillStyle = p.color;
-                ctx.fillRect(p.x, p.y, 2, 2);
-            });
-
-            // 7. Draw Player Commander Node
-            ctx.fillStyle = '#ffd700'; // Nova gold
-            ctx.strokeStyle = '#00f0ff'; // Neon glow outline
+            // Draw Local Player Commander Node
+            ctx.fillStyle = Factions[myFaction].color;
+            ctx.strokeStyle = '#00f0ff';
             ctx.lineWidth = 3;
             ctx.beginPath();
-            ctx.arc(player.x, player.y, 14, 0, Math.PI * 2);
+            ctx.arc(playerObj.x, playerObj.y, 14, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
 
-            // Inner circle
             ctx.fillStyle = '#0a0d18';
             ctx.beginPath();
-            ctx.arc(player.x, player.y, 6, 0, Math.PI * 2);
+            ctx.arc(playerObj.x, playerObj.y, 6, 0, Math.PI * 2);
             ctx.fill();
         }
 
@@ -915,19 +986,18 @@
         }
 
         function updateUI() {
-            document.getElementById('res-credits').innerText = player.credits;
-            document.getElementById('res-energy').innerText = player.energy;
-            document.getElementById('res-tech').innerText = player.tech;
-            document.getElementById('res-influence').innerText = player.influence;
-            document.getElementById('score-val').innerText = player.score;
+            document.getElementById('res-credits').innerText = playerObj.credits;
+            document.getElementById('res-energy').innerText = playerObj.energy;
+            document.getElementById('res-tech').innerText = playerObj.tech;
+            document.getElementById('res-influence').innerText = playerObj.influence;
+            document.getElementById('score-val').innerText = playerObj.score;
         }
 
         function updateStandings() {
             const list = document.getElementById('standings-list');
             list.innerHTML = '';
 
-            // Calculate strategic score dynamically
-            const scores = { P1: 0, P2: 0, P3: 0, P4: 0 };
+            const scores = { NOVA: 0, VORTEX: 0, PULSE: 0, SYNTH: 0 };
             for (const nId in Nodes) {
                 const node = Nodes[nId];
                 if (node.owner) {
@@ -935,18 +1005,15 @@
                 }
             }
 
-            // Convert resources to points
-            scores.P1 += Math.round(player.credits * 0.1 + player.energy * 0.1);
-            player.score = scores.P1;
+            scores[myFaction] += Math.round(playerObj.credits * 0.1 + playerObj.energy * 0.1);
+            playerObj.score = scores[myFaction];
 
             const sorted = Object.keys(Factions).sort((a,b) => scores[b] - scores[a]);
             sorted.forEach(fId => {
                 const faction = Factions[fId];
-                const badgeColor = faction.color;
                 const count = Object.values(Nodes).filter(n => n.owner === fId).length;
-                
                 list.innerHTML += `
-                    <div class="standing-row" style="border-left: 3px solid ${badgeColor}">
+                    <div class="standing-row" style="border-left: 3px solid ${faction.color}">
                         <div style="font-weight: 600;">${faction.name} (${count} Sectors)</div>
                         <div style="font-family: 'Orbitron'; font-weight: bold;">${scores[fId]}</div>
                     </div>
@@ -959,20 +1026,12 @@
             const title = document.getElementById('matrix-title');
             title.innerText = `Sector ${territory.id} Dynamic Matrix`;
 
-            // Calculate dynamic payouts based on local defense vs player stats
-            const defensePower = territory.defense;
-            const playerAttack = 30; // Standard command attack value
-
             const val00 = document.getElementById('c-0-0');
             const val01 = document.getElementById('c-0-1');
             const val10 = document.getElementById('c-1-0');
             const val11 = document.getElementById('c-1-1');
 
             let c00 = { a: -30, b: -20 };
-            if (playerAttack > defensePower) {
-                c00 = { a: territory.val - 30, b: -territory.val };
-            }
-
             const c01 = { a: territory.val - 30, b: -territory.val - 50 };
             const c10 = { a: 0, b: -20 };
             const c11 = { a: 0, b: territory.val - 50 };
@@ -981,52 +1040,24 @@
             val01.innerText = `(${c01.a}, ${c01.b})`;
             val10.innerText = `(${c10.a}, ${c10.b})`;
             val11.innerText = `(${c11.a}, ${c11.b})`;
-
-            // Nash highlight
-            const cells = [
-                ['cell-0-0', 'cell-0-1'],
-                ['cell-1-0', 'cell-1-1']
-            ];
-            const payoffs = [
-                [c00, c01],
-                [c10, c11]
-            ];
-
-            for (let i = 0; i < 2; i++) {
-                for (let j = 0; j < 2; j++) {
-                    const cell = document.getElementById(cells[i][j]);
-                    cell.classList.remove('nash');
-                    
-                    const current = payoffs[i][j];
-                    const aBest = current.a >= payoffs[1 - i][j].a;
-                    const bBest = current.b >= payoffs[i][1 - j].b;
-                    
-                    if (aBest && bBest) {
-                        cell.classList.add('nash');
-                    }
-                }
-            }
         }
 
         function endGame() {
             isGameRunning = false;
-            clearInterval(gameInterval);
-            
             const overlay = document.getElementById('end-overlay');
             overlay.classList.add('active');
 
             const results = document.getElementById('end-results');
             results.innerHTML = `
-                <p><strong>Simulation Concluded.</strong></p>
+                <p><strong>Multiplayer Match Concluded.</strong></p>
                 <br>
-                <p>Commander Final Score: <strong>${player.score}</strong></p>
-                <p>Sectors Controlled: <strong>${Object.values(Nodes).filter(n => n.owner === 'P1').length}</strong> / 14</p>
-                <p>Final Credits: <strong>${player.credits}</strong></p>
-                <p>Final Energy: <strong>${player.energy}</strong></p>
+                <p>Your Final Score: <strong>${playerObj.score}</strong></p>
+                <p>Sectors Controlled: <strong>${Object.values(Nodes).filter(n => n.owner === myFaction).length}</strong> / 14</p>
             `;
         }
 
-        // Initialize UI values
+        // Initialize Sockets and UI
+        initSocket();
         updateStandings();
         updateUI();
         updateGTMatrix();
