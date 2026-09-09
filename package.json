@@ -4,6 +4,8 @@
   "description": "",
   "main": "simulation_runner.js",
   "scripts": {
+    "start": "node server.js",
+    "sim": "node simulation_runner.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

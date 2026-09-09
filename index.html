@@ -320,14 +320,156 @@
             font-size: 12px;
         }
 
-        /* Lobby Info */
-        .lobby-players-list {
-            margin: 15px 0;
-            text-align: left;
-            background: rgba(0,0,0,0.4);
-            border: 1px dashed var(--border-neon);
-            padding: 10px;
+        /* Mode Tabs & Selector */
+        .mode-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid var(--border-neon);
+        }
+
+        .mode-tab {
+            flex: 1;
+            padding: 10px 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: #8a99ad;
+            background: transparent;
+            border: none;
             border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .mode-tab.active {
+            background: linear-gradient(90deg, rgba(0, 240, 255, 0.25), rgba(157, 0, 255, 0.25));
+            color: var(--neon-blue);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
+            border: 1px solid var(--neon-blue);
+        }
+
+        /* Faction Selector Grid */
+        .faction-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .faction-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .faction-card:hover {
+            border-color: rgba(0, 240, 255, 0.5);
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        .faction-card.active {
+            border-color: var(--neon-blue);
+            background: rgba(0, 240, 255, 0.12);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+        }
+
+        .faction-card-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .faction-card-desc {
+            font-size: 9px;
+            color: #8a99ad;
+            margin-top: 2px;
+        }
+
+        /* Difficulty Selector */
+        .diff-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .diff-btn {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 10px 5px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: #8a99ad;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .diff-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .diff-btn.active.diff-easy {
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+            background: rgba(57, 255, 20, 0.1);
+            box-shadow: 0 0 12px rgba(57, 255, 20, 0.25);
+        }
+
+        .diff-btn.active.diff-medium {
+            border-color: var(--neon-blue);
+            color: var(--neon-blue);
+            background: rgba(0, 240, 255, 0.1);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+        }
+
+        .diff-btn.active.diff-hard {
+            border-color: var(--neon-pink);
+            color: var(--neon-pink);
+            background: rgba(255, 0, 127, 0.1);
+            box-shadow: 0 0 12px rgba(255, 0, 127, 0.25);
+        }
+
+        .diff-info {
+            font-size: 10px;
+            color: #a0aec0;
+            margin-bottom: 15px;
+            min-height: 28px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .exec-ability-btn {
+            background: linear-gradient(90deg, #ffd700, #ff3b30);
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: bold;
+            color: #05060b;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.2s;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+        }
+
+        .exec-ability-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
         }
     </style>
 </head>
@@ -336,7 +478,7 @@
     <header>
         <div class="logo">
             NEON TERRITORIES
-            <span>Real-time Multiplayer Matchmaker</span>
+            <span id="header-subtitle">Real-time Game-Theoretic Commander</span>
         </div>
         <div class="hud-stats">
             <div class="hud-box">
@@ -353,9 +495,9 @@
     <div class="game-layout">
         <!-- Left Panel: Faction Status & Abilities -->
         <div class="sidebar">
-            <div class="panel-title">MULTIPLAYER STATUS</div>
+            <div class="panel-title">MISSION STATUS</div>
             <div style="font-size: 11px; color: var(--neon-green); margin-bottom: 15px;" id="multiplayer-status-text">
-                CONNECTED: Room Code - 
+                SOLO DEPLOYMENT: Ready
             </div>
 
             <div class="panel-title">RESOURCES</div>
@@ -380,17 +522,20 @@
 
             <div class="panel-title">TACTICAL COMMANDS</div>
             <div class="ability-btn active" id="ab-strike" onclick="setAbility('strike')">
-                <span class="ability-title">🎯 Deploy Strike Force</span>
-                <span class="ability-cost">Cost: 30 Energy</span>
+                <span class="ability-title">🎯 [1] Strike Force</span>
+                <span class="ability-cost">Cost: 30 Energy (-40 Node HP)</span>
             </div>
             <div class="ability-btn" id="ab-shield" onclick="setAbility('shield')">
-                <span class="ability-title">🛡️ Fortify Defense</span>
-                <span class="ability-cost">Cost: 20 Energy / 20 Credits</span>
+                <span class="ability-title">🛡️ [2] Fortify Defense</span>
+                <span class="ability-cost">Cost: 20 En / 20 Cr (+50 HP)</span>
             </div>
             <div class="ability-btn" id="ab-upgrade" onclick="setAbility('upgrade')">
-                <span class="ability-title">📈 Invest in Node</span>
-                <span class="ability-cost">Cost: 50 Credits</span>
+                <span class="ability-title">📈 [3] Invest in Node</span>
+                <span class="ability-cost">Cost: 50 Credits (+Gen Rate)</span>
             </div>
+
+            <button class="exec-ability-btn" onclick="executeCurrentAbility()">⚡ Trigger on Selected Node</button>
+            <div style="font-size: 9px; color: #8a99ad; margin-top: 6px; text-align: center;">Or press [Space] / [1, 2, 3] keys</div>
         </div>
 
         <!-- Center Canvas -->
@@ -430,28 +575,78 @@
 
             <div class="panel-title">FACTION SECTORS</div>
             <div class="standings-list" id="standings-list" style="flex-grow: 1;">
-                <!-- Standings updated in socket sync -->
+                <!-- Standings updated in socket/bot sync -->
             </div>
 
             <div class="panel-title">SECTOR LOGS</div>
             <div id="sector-terminal" style="font-family: 'Share Tech Mono', monospace; font-size: 10px; height: 120px; overflow-y: auto; background: rgba(0,0,0,0.4); padding: 5px; border-radius: 4px; border: 1px solid var(--border-neon); color: #00ff66;">
-                [Game Running] Lobby connected. Spawning servers.
+                [System Initialized] Select Mode to Deploy.
             </div>
         </div>
     </div>
 
-    <!-- Start Overlay Screen / Multiplayer Lobby -->
+    <!-- Start Overlay Screen / Mode Lobby -->
     <div class="overlay active" id="overlay">
-        <div class="overlay-box" id="lobby-panel">
-            <h1 class="logo" style="font-size: 28px; margin-bottom: 20px;">NEON TERRITORIES</h1>
-            <p style="font-size: 11px; margin-bottom: 20px; color: #a0aec0;">
-                Select Faction & Lobby Action
-            </p>
+        <div class="overlay-box" id="lobby-panel" style="max-width: 540px;">
+            <h1 class="logo" style="font-size: 26px; margin-bottom: 12px;">NEON TERRITORIES</h1>
 
-            <button class="btn" style="margin-bottom: 10px;" onclick="chooseHost()">Host A New Server</button>
-            <div style="margin: 10px 0; color: #8a99ad;">-- OR --</div>
-            <input type="text" class="input-code" id="joinCode" placeholder="ENTER ROOM CODE">
-            <button class="btn" onclick="chooseJoin()">Join Active Server</button>
+            <div class="mode-tabs">
+                <button class="mode-tab active" id="tab-solo" onclick="switchModeTab('solo')">⚡ SOLO VS BOTS</button>
+                <button class="mode-tab" id="tab-multi" onclick="switchModeTab('multi')">🌐 MULTIPLAYER ROOMS</button>
+            </div>
+
+            <!-- Faction Selection -->
+            <div style="font-size: 10px; color: #8a99ad; text-align: left; margin-bottom: 6px; font-weight: bold;">SELECT YOUR FACTION:</div>
+            <div class="faction-grid">
+                <div class="faction-card active" id="fcard-NOVA" onclick="selectFaction('NOVA')">
+                    <div class="faction-card-name" style="color: var(--nova);">NOVA CORP</div>
+                    <div class="faction-card-desc">Economic Powerhouse (+Credits)</div>
+                </div>
+                <div class="faction-card" id="fcard-VORTEX" onclick="selectFaction('VORTEX')">
+                    <div class="faction-card-name" style="color: var(--vortex);">VORTEX SYNDICATE</div>
+                    <div class="faction-card-desc">Aggressive Military (+Energy)</div>
+                </div>
+                <div class="faction-card" id="fcard-PULSE" onclick="selectFaction('PULSE')">
+                    <div class="faction-card-name" style="color: var(--pulse);">PULSE NETWORK</div>
+                    <div class="faction-card-desc">Technological Superiority (+Tech)</div>
+                </div>
+                <div class="faction-card" id="fcard-SYNTH" onclick="selectFaction('SYNTH')">
+                    <div class="faction-card-name" style="color: var(--synth);">SYNTH NEXUS</div>
+                    <div class="faction-card-desc">Diplomacy & Espionage (+Influence)</div>
+                </div>
+            </div>
+
+            <!-- Solo View -->
+            <div id="solo-view-panel">
+                <div style="font-size: 10px; color: #8a99ad; text-align: left; margin-bottom: 6px; font-weight: bold;">SELECT AI BOT DIFFICULTY:</div>
+                <div class="diff-grid">
+                    <div class="diff-btn active diff-easy" id="diff-easy" onclick="selectDifficulty('easy')">
+                        🟢 EASY
+                    </div>
+                    <div class="diff-btn diff-medium" id="diff-medium" onclick="selectDifficulty('medium')">
+                        🟡 MEDIUM
+                    </div>
+                    <div class="diff-btn diff-hard" id="diff-hard" onclick="selectDifficulty('hard')">
+                        🔴 HARD
+                    </div>
+                </div>
+
+                <div class="diff-info" id="diff-info-text">
+                    ⚡ <strong>Easy Mode:</strong> AI Bots move very slowly (1.1 speed), capture sectors at a relaxed rate, and rarely shoot. Ideal for learning territory strategies.
+                </div>
+
+                <button class="btn" style="margin-top: 5px; background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));" onclick="launchSoloMatch()">
+                    🚀 LAUNCH SOLO MISSION
+                </button>
+            </div>
+
+            <!-- Multiplayer View -->
+            <div id="multi-view-panel" style="display: none;">
+                <button class="btn" style="margin-bottom: 10px;" onclick="chooseHost()">Host A New Server</button>
+                <div style="margin: 8px 0; color: #8a99ad; font-size: 11px;">-- OR JOIN ROOM --</div>
+                <input type="text" class="input-code" id="joinCode" placeholder="ENTER ROOM CODE">
+                <button class="btn" onclick="chooseJoin()">Join Active Server</button>
+            </div>
         </div>
 
         <div class="overlay-box" id="waiting-panel" style="display: none;">
@@ -473,12 +668,12 @@
 
     <!-- Final Results Overlay -->
     <div class="overlay" id="end-overlay">
-        <div class="overlay-box">
-            <h2 class="logo" style="font-size: 28px; margin-bottom: 20px;">MISSION COMPLETE</h2>
-            <div id="end-results" style="font-size: 13px; text-align: left; margin: 20px 0; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
+        <div class="overlay-box" style="max-width: 520px;">
+            <h2 class="logo" style="font-size: 26px; margin-bottom: 15px;">MISSION COMPLETE</h2>
+            <div id="end-results" style="font-size: 13px; text-align: left; margin: 15px 0; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
                 <!-- Results -->
             </div>
-            <button class="btn" onclick="location.reload()">Re-Deploy</button>
+            <button class="btn" onclick="location.reload()">Re-Deploy / New Game</button>
         </div>
     </div>
 
@@ -544,15 +739,48 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Local Player state
-        let myId = null;
+        // Game State & Configuration
+        let gameMode = 'solo'; // 'solo' or 'multiplayer'
+        let botDifficulty = 'easy'; // 'easy', 'medium', 'hard'
         let myFaction = 'NOVA';
         let isHost = false;
         let roomCode = null;
+        let myId = 'player_' + Math.random().toString(36).substring(2, 7);
+
+        const DIFFICULTY_CONFIG = {
+            easy: {
+                botSpeed: 1.1,             // Sluggish movement as requested
+                captureRate: 0.22,
+                shootInterval: 280,
+                bulletSpeed: 5,
+                reactionRate: 0.03,
+                nameSuffix: ' (Easy Bot)',
+                desc: '⚡ <strong>Easy Mode:</strong> AI Bots move very slowly (1.1 speed), capture sectors at a relaxed rate, and rarely shoot. Ideal for learning territory strategies.'
+            },
+            medium: {
+                botSpeed: 2.3,             // Standard movement
+                captureRate: 0.45,
+                shootInterval: 140,
+                bulletSpeed: 7,
+                reactionRate: 0.07,
+                nameSuffix: ' (Medium Bot)',
+                desc: '🟡 <strong>Medium Mode:</strong> AI Bots move at standard speed (2.3 speed), contest sectors actively, shoot lasers, and defend territories.'
+            },
+            hard: {
+                botSpeed: 3.7,             // Fast and aggressive movement
+                captureRate: 0.75,
+                shootInterval: 75,
+                bulletSpeed: 9,
+                reactionRate: 0.12,
+                nameSuffix: ' (Hard Bot)',
+                desc: '🔴 <strong>Hard Mode:</strong> Fast bots (3.7 speed), aggressive utility maximization, tactical ability usage, and high-intensity dogfighting!'
+            }
+        };
 
         let playerObj = {
             x: 400,
             y: 100,
+            hp: 100,
             credits: 100,
             energy: 80,
             tech: 20,
@@ -561,8 +789,10 @@
             activeAbility: 'strike'
         };
 
-        // Other Connected Players (Sync from Socket)
-        let otherPlayers = {}; // id -> { faction, x, y, score }
+        // Active AI Bots in Solo Mode
+        let bots = [];
+        // Other Connected Players in Multiplayer Mode
+        let otherPlayers = {}; 
 
         // Socket Matchmaking Configuration
         const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -570,26 +800,161 @@
         let socket = null;
 
         const keys = {};
-        const creeps = [];
         const bullets = [];
-        const particles = [];
+        const floatingTexts = [];
+        const hitParticles = [];
+        let mousePos = { x: 400, y: 300, onCanvas: false };
         let gameTime = 180;
         let isGameRunning = false;
         let selectedNode = 'T08';
+        let timerInterval = null;
 
-        window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+        // UI Tabs & Selectors
+        function switchModeTab(tab) {
+            gameMode = tab;
+            document.getElementById('tab-solo').classList.toggle('active', tab === 'solo');
+            document.getElementById('tab-multi').classList.toggle('active', tab === 'multi');
+            document.getElementById('solo-view-panel').style.display = tab === 'solo' ? 'block' : 'none';
+            document.getElementById('multi-view-panel').style.display = tab === 'multi' ? 'none' : 'block';
+        }
+
+        function selectFaction(fKey) {
+            myFaction = fKey;
+            ['NOVA', 'VORTEX', 'PULSE', 'SYNTH'].forEach(k => {
+                document.getElementById(`fcard-${k}`).classList.toggle('active', k === fKey);
+            });
+            updateGTMatrix();
+        }
+
+        function selectDifficulty(diff) {
+            botDifficulty = diff;
+            ['easy', 'medium', 'hard'].forEach(d => {
+                const btn = document.getElementById(`diff-${d}`);
+                btn.classList.toggle('active', d === diff);
+            });
+            document.getElementById('diff-info-text').innerHTML = DIFFICULTY_CONFIG[diff].desc;
+        }
+
+        // Tactical Abilities
+        function setAbility(type) {
+            playerObj.activeAbility = type;
+            document.getElementById('ab-strike').classList.toggle('active', type === 'strike');
+            document.getElementById('ab-shield').classList.toggle('active', type === 'shield');
+            document.getElementById('ab-upgrade').classList.toggle('active', type === 'upgrade');
+        }
+
+        function executeCurrentAbility() {
+            if (!isGameRunning) return;
+            const node = Nodes[selectedNode];
+            if (!node) return;
+
+            const ability = playerObj.activeAbility;
+
+            if (ability === 'strike') {
+                if (playerObj.energy < 30) {
+                    spawnFloatingText(playerObj.x, playerObj.y - 20, 'NOT ENOUGH ENERGY (30)', '#ff3b30');
+                    return;
+                }
+                playerObj.energy -= 30;
+                if (node.owner !== myFaction) {
+                    node.hp = Math.max(0, node.hp - 40);
+                    spawnFloatingText(node.x, node.y - 30, '🎯 STRIKE -40 HP', '#ff007f');
+                    playSound('hit');
+                    if (node.hp <= 0) {
+                        node.owner = myFaction;
+                        node.hp = 100;
+                        playSound('capture');
+                        logTerminal(`[STRIKE] ${node.id} neutralized and captured by ${Factions[myFaction].name}!`);
+                    }
+                } else {
+                    spawnFloatingText(node.x, node.y - 30, 'SECTOR ALREADY CONTROLLED', '#ffd700');
+                }
+            } else if (ability === 'shield') {
+                if (playerObj.energy < 20 || playerObj.credits < 20) {
+                    spawnFloatingText(playerObj.x, playerObj.y - 20, 'NEED 20 EN + 20 CR', '#ff3b30');
+                    return;
+                }
+                playerObj.energy -= 20;
+                playerObj.credits -= 20;
+                node.hp = Math.min(150, node.hp + 50);
+                spawnFloatingText(node.x, node.y - 30, '🛡️ FORTIFIED +50 HP', '#00f0ff');
+                playSound('capture');
+                logTerminal(`[FORTIFY] Sector ${node.id} shields reinforced.`);
+            } else if (ability === 'upgrade') {
+                if (playerObj.credits < 50) {
+                    spawnFloatingText(playerObj.x, playerObj.y - 20, 'NOT ENOUGH CREDITS (50)', '#ff3b30');
+                    return;
+                }
+                playerObj.credits -= 50;
+                node.val += 15;
+                node.gen.credits += 10;
+                node.gen.energy += 10;
+                spawnFloatingText(node.x, node.y - 30, '📈 UPGRADED +15 VAL', '#39ff14');
+                playSound('capture');
+                logTerminal(`[INVEST] Sector ${node.id} output and valuation increased.`);
+            }
+
+            updateUI();
+            updateStandings();
+            updateGTMatrix();
+        }
+
+        function spawnFloatingText(x, y, text, color) {
+            floatingTexts.push({ x, y, text, color, life: 60, maxLife: 60 });
+        }
+
+        function spawnHitParticles(x, y, color) {
+            for (let i = 0; i < 8; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 1.5 + Math.random() * 3;
+                hitParticles.push({
+                    x, y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    life: 20,
+                    maxLife: 20,
+                    color: color || '#00f0ff'
+                });
+            }
+        }
+
+        // Key Listeners
+        window.addEventListener('keydown', e => {
+            keys[e.key.toLowerCase()] = true;
+            if (e.key === '1') setAbility('strike');
+            if (e.key === '2') setAbility('shield');
+            if (e.key === '3') setAbility('upgrade');
+            if (e.code === 'Space') {
+                e.preventDefault();
+                executeCurrentAbility();
+            }
+        });
         window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
+        // Track Mouse Movement for Precise Crosshair & Aiming Line
+        canvas.addEventListener('mousemove', e => {
+            const rect = canvas.getBoundingClientRect();
+            mousePos.x = e.clientX - rect.left;
+            mousePos.y = e.clientY - rect.top;
+            mousePos.onCanvas = true;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            mousePos.onCanvas = false;
+        });
+
+        // Precision Click Listener (Selection or Direct Laser Fire)
         canvas.addEventListener('click', e => {
             if (!isGameRunning) return;
             const rect = canvas.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
             const clickY = e.clientY - rect.top;
 
+            // Check if clicking directly on a node center for matrix selection
             let clickedNode = null;
             for (const nId in Nodes) {
                 const node = Nodes[nId];
-                if (Math.hypot(clickX - node.x, clickY - node.y) < 28) {
+                if (Math.hypot(clickX - node.x, clickY - node.y) < 26) {
                     clickedNode = nId;
                     break;
                 }
@@ -600,143 +965,205 @@
                 playSound('capture');
                 updateGTMatrix();
             } else {
+                // Fire Precision Laser Bullet
                 if (playerObj.energy >= 5) {
                     playerObj.energy -= 5;
                     updateUI();
                     
-                    // Spawn local bullet
                     const angle = Math.atan2(clickY - playerObj.y, clickX - playerObj.x);
+                    const bulletSpeed = 9; // High velocity for pinpoint precision
                     bullets.push({
-                        x: playerObj.x, y: playerObj.y,
-                        vx: Math.cos(angle) * 8, vy: Math.sin(angle) * 8,
-                        owner: myFaction, color: Factions[myFaction].color
+                        x: playerObj.x,
+                        y: playerObj.y,
+                        vx: Math.cos(angle) * bulletSpeed,
+                        vy: Math.sin(angle) * bulletSpeed,
+                        owner: myFaction,
+                        color: Factions[myFaction].color
                     });
                     playSound('laser');
 
-                    // Broadcast shoot to socket
-                    sendSocketMessage({
-                        type: 'shoot',
-                        bullet: { x: playerObj.x, y: playerObj.y, vx: Math.cos(angle) * 8, vy: Math.sin(angle) * 8 }
-                    });
+                    if (gameMode === 'multiplayer') {
+                        sendSocketMessage({
+                            type: 'shoot',
+                            bullet: { x: playerObj.x, y: playerObj.y, vx: Math.cos(angle) * bulletSpeed, vy: Math.sin(angle) * bulletSpeed }
+                        });
+                    }
+                } else {
+                    spawnFloatingText(playerObj.x, playerObj.y - 20, 'OUT OF ENERGY (5 EN)', '#ff3b30');
                 }
             }
         });
 
-        // Initialize Sockets
+        // Solo Mode Launch
+        function launchSoloMatch() {
+            gameMode = 'solo';
+            isHost = true;
+            
+            document.getElementById('overlay').classList.remove('active');
+            document.getElementById('header-subtitle').innerText = `Solo Tactical Simulation (${botDifficulty.toUpperCase()})`;
+            document.getElementById('multiplayer-status-text').innerText = `SOLO MODE: AI DIFFICULTY [${botDifficulty.toUpperCase()}]`;
+
+            // Spawn 3 AI Bots for remaining factions
+            const allFactions = ['NOVA', 'VORTEX', 'PULSE', 'SYNTH'];
+            const botFactions = allFactions.filter(f => f !== myFaction);
+            const cfg = DIFFICULTY_CONFIG[botDifficulty];
+
+            bots = botFactions.map((fId, idx) => {
+                // Find starting home base node
+                const baseNode = Object.values(Nodes).find(n => n.owner === fId);
+                const spawnX = baseNode ? baseNode.x : (150 + idx * 250);
+                const spawnY = baseNode ? baseNode.y : (200 + idx * 150);
+
+                return {
+                    id: 'bot_' + fId,
+                    faction: fId,
+                    name: Factions[fId].name + cfg.nameSuffix,
+                    x: spawnX,
+                    y: spawnY,
+                    vx: 0,
+                    vy: 0,
+                    speed: cfg.botSpeed,
+                    targetNode: null,
+                    decisionTimer: Math.floor(Math.random() * 30),
+                    shootCooldown: Math.floor(Math.random() * cfg.shootInterval),
+                    credits: 100,
+                    energy: 80,
+                    tech: 20,
+                    influence: 20,
+                    score: 0,
+                    hp: 100
+                };
+            });
+
+            isGameRunning = true;
+            resizeCanvas();
+
+            // Set player start position at faction home base
+            const playerBase = Object.values(Nodes).find(n => n.owner === myFaction);
+            if (playerBase) {
+                playerObj.x = playerBase.x;
+                playerObj.y = playerBase.y;
+            }
+
+            logTerminal(`[SOLO] Deployed as Commander of ${Factions[myFaction].name}. Difficulty: ${botDifficulty.toUpperCase()}`);
+            
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(gameTimerTick, 1000);
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Multiplayer Socket Handling
         function initSocket() {
-            socket = new WebSocket(wsUrl);
+            try {
+                socket = new WebSocket(wsUrl);
 
-            socket.onopen = () => {
-                console.log('[SOCKET] Connected to matchmaker');
-            };
+                socket.onopen = () => {
+                    console.log('[SOCKET] Connected to matchmaker');
+                };
 
-            socket.onmessage = (event) => {
-                const data = JSON.parse(event.data);
+                socket.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
 
-                switch (data.type) {
-                    case 'hosted':
-                        roomCode = data.roomCode;
-                        myId = data.playerId;
-                        myFaction = data.faction;
-                        isHost = true;
-                        
-                        document.getElementById('lobby-panel').style.display = 'none';
-                        document.getElementById('waiting-panel').style.display = 'block';
-                        document.getElementById('room-code-display').innerText = `CODE: ${roomCode}`;
-                        document.getElementById('start-game-btn').style.display = 'block';
-                        document.getElementById('lobby-players').innerHTML = `
-                            <p style="color: var(--neon-green)">👑 ${Factions[myFaction].name} (You - Host)</p>
-                        `;
-                        break;
+                    switch (data.type) {
+                        case 'hosted':
+                            roomCode = data.roomCode;
+                            myId = data.playerId;
+                            myFaction = data.faction;
+                            isHost = true;
+                            
+                            document.getElementById('lobby-panel').style.display = 'none';
+                            document.getElementById('waiting-panel').style.display = 'block';
+                            document.getElementById('room-code-display').innerText = `CODE: ${roomCode}`;
+                            document.getElementById('start-game-btn').style.display = 'block';
+                            document.getElementById('lobby-players').innerHTML = `
+                                <p style="color: var(--neon-green)">👑 ${Factions[myFaction].name} (You - Host)</p>
+                            `;
+                            break;
 
-                    case 'joined':
-                        roomCode = data.roomCode;
-                        myId = data.playerId;
-                        myFaction = data.faction;
-                        isHost = false;
+                        case 'joined':
+                            roomCode = data.roomCode;
+                            myId = data.playerId;
+                            myFaction = data.faction;
+                            isHost = false;
 
-                        document.getElementById('lobby-panel').style.display = 'none';
-                        document.getElementById('waiting-panel').style.display = 'block';
-                        document.getElementById('room-code-display').innerText = `CODE: ${roomCode}`;
-                        document.getElementById('start-game-btn').style.display = 'none';
-                        document.getElementById('wait-message-info').innerText = 'Waiting for Host to deploy game...';
-                        updateLobbyPlayersList(data.playersList);
-                        break;
+                            document.getElementById('lobby-panel').style.display = 'none';
+                            document.getElementById('waiting-panel').style.display = 'block';
+                            document.getElementById('room-code-display').innerText = `CODE: ${roomCode}`;
+                            document.getElementById('start-game-btn').style.display = 'none';
+                            document.getElementById('wait-message-info').innerText = 'Waiting for Host to deploy game...';
+                            updateLobbyPlayersList(data.playersList);
+                            break;
 
-                    case 'player_joined':
-                        updateLobbyPlayersList(data.playersList);
-                        logTerminal(`Player joined room.`);
-                        break;
+                        case 'player_joined':
+                        case 'player_left':
+                            updateLobbyPlayersList(data.playersList);
+                            break;
 
-                    case 'player_left':
-                        updateLobbyPlayersList(data.playersList);
-                        logTerminal(`Player disconnected.`);
-                        break;
+                        case 'started':
+                            startMultiplayerGame();
+                            break;
 
-                    case 'started':
-                        startGame();
-                        break;
+                        case 'player_state':
+                            if (!otherPlayers[data.id]) otherPlayers[data.id] = {};
+                            otherPlayers[data.id].x = data.state.x;
+                            otherPlayers[data.id].y = data.state.y;
+                            otherPlayers[data.id].score = data.state.score;
+                            otherPlayers[data.id].faction = data.state.faction;
+                            break;
 
-                    case 'player_state':
-                        if (!otherPlayers[data.id]) otherPlayers[data.id] = {};
-                        otherPlayers[data.id].x = data.state.x;
-                        otherPlayers[data.id].y = data.state.y;
-                        otherPlayers[data.id].score = data.state.score;
-                        otherPlayers[data.id].faction = data.state.faction;
-                        break;
+                        case 'bullet_fired':
+                            bullets.push({
+                                x: data.bullet.x, y: data.bullet.y,
+                                vx: data.bullet.vx, vy: data.bullet.vy,
+                                owner: data.faction, color: Factions[data.faction]?.color || '#ffffff'
+                            });
+                            playSound('laser');
+                            break;
 
-                    case 'bullet_fired':
-                        bullets.push({
-                            x: data.bullet.x, y: data.bullet.y,
-                            vx: data.bullet.vx, vy: data.bullet.vy,
-                            owner: data.faction, color: Factions[data.faction]?.color || '#ffffff'
-                        });
-                        playSound('laser');
-                        break;
+                        case 'sector_captured':
+                            Nodes[data.nodeId].owner = data.owner;
+                            playSound('capture');
+                            logTerminal(`[SECTOR] Sector ${data.nodeId} captured by ${Factions[data.owner]?.name || 'Neutral'}`);
+                            updateStandings();
+                            break;
 
-                    case 'sector_captured':
-                        Nodes[data.nodeId].owner = data.owner;
-                        playSound('capture');
-                        logTerminal(`[SECTOR] Sector ${data.nodeId} captured by ${Factions[data.owner]?.name || 'Neutral'}`);
-                        updateStandings();
-                        break;
-
-                    case 'creeps_sync':
-                        // Sync creeps array and timer from Host
-                        gameTime = data.timeRemaining;
-                        
-                        // Local formatting
-                        const mins = Math.floor(gameTime / 60).toString().padStart(2, '0');
-                        const secs = (gameTime % 60).toString().padStart(2, '0');
-                        document.getElementById('time-val').innerText = `${mins}:${secs}`;
-                        break;
-                }
-            };
+                        case 'creeps_sync':
+                            gameTime = data.timeRemaining;
+                            const mins = Math.floor(gameTime / 60).toString().padStart(2, '0');
+                            const secs = (gameTime % 60).toString().padStart(2, '0');
+                            document.getElementById('time-val').innerText = `${mins}:${secs}`;
+                            break;
+                    }
+                };
+            } catch(e) {
+                console.log('[SOCKET] Running standalone/offline.');
+            }
         }
 
         function updateLobbyPlayersList(list) {
             const container = document.getElementById('lobby-players');
+            if (!container || !list) return;
             container.innerHTML = list.map((p, idx) => {
                 const label = p.id === myId ? '(You)' : '';
                 const role = idx === 0 ? '👑' : '•';
-                return `<p>${role} ${Factions[p.faction].name} ${label}</p>`;
+                return `<p>${role} ${Factions[p.faction]?.name || p.faction} ${label}</p>`;
             }).join('');
         }
 
         function chooseHost() {
             if (!socket || socket.readyState !== 1) {
-                alert('Connection to server loading...');
+                alert('Connection to server is offline or loading. You can also play immediately in Solo Mode vs AI Bots!');
                 return;
             }
-            sendSocketMessage({ type: 'host', faction: 'NOVA' });
+            sendSocketMessage({ type: 'host', faction: myFaction });
         }
 
         function chooseJoin() {
             if (!socket || socket.readyState !== 1) {
-                alert('Connection to server loading...');
+                alert('Connection to server is offline or loading. You can also play immediately in Solo Mode vs AI Bots!');
                 return;
             }
-            const code = document.getElementById('joinCode').value;
+            const code = document.getElementById('joinCode').value.trim();
             if (!code) {
                 alert('Please enter a room code');
                 return;
@@ -754,19 +1181,12 @@
             }
         }
 
-        function setAbility(type) {
-            playerObj.activeAbility = type;
-            document.getElementById('ab-strike').classList.toggle('active', type === 'strike');
-            document.getElementById('ab-shield').classList.toggle('active', type === 'shield');
-            document.getElementById('ab-upgrade').classList.toggle('active', type === 'upgrade');
-        }
-
-        function startGame() {
+        function startMultiplayerGame() {
+            gameMode = 'multiplayer';
             document.getElementById('overlay').classList.remove('active');
             isGameRunning = true;
             resizeCanvas();
             
-            // Set starting position based on faction base
             const factionBase = Object.values(Nodes).find(n => n.owner === myFaction);
             if (factionBase) {
                 playerObj.x = factionBase.x;
@@ -776,7 +1196,8 @@
             document.getElementById('multiplayer-status-text').innerText = `CONNECTED: Room Code - ${roomCode}`;
 
             if (isHost) {
-                setInterval(gameTimerTick, 1000);
+                if (timerInterval) clearInterval(timerInterval);
+                timerInterval = setInterval(gameTimerTick, 1000);
             }
             requestAnimationFrame(gameLoop);
         }
@@ -786,23 +1207,26 @@
             canvas.height = canvas.parentElement.clientHeight;
         }
 
+        window.addEventListener('resize', resizeCanvas);
+
+        // Second Timer Tick (Resource Allocation & Standings Sync)
         function gameTimerTick() {
             if (!isGameRunning) return;
             gameTime--;
 
-            // Sync down from host
-            sendSocketMessage({
-                type: 'creeps',
-                creeps: [], // simple structural relay
-                timeRemaining: gameTime
-            });
+            if (gameMode === 'multiplayer' && isHost) {
+                sendSocketMessage({
+                    type: 'creeps',
+                    creeps: [],
+                    timeRemaining: gameTime
+                });
+            }
 
-            // Local formatting
             const mins = Math.floor(gameTime / 60).toString().padStart(2, '0');
             const secs = (gameTime % 60).toString().padStart(2, '0');
             document.getElementById('time-val').innerText = `${mins}:${secs}`;
 
-            // Resource allocation
+            // Player resource generation from controlled nodes
             let cr = 0, en = 0, te = 0, inf = 0;
             for (const nId in Nodes) {
                 const node = Nodes[nId];
@@ -818,6 +1242,38 @@
             playerObj.tech += te;
             playerObj.influence += inf;
 
+            // Bots resource generation in solo mode
+            if (gameMode === 'solo') {
+                bots.forEach(bot => {
+                    let bCr = 0, bEn = 0, bTe = 0, bInf = 0;
+                    for (const nId in Nodes) {
+                        const node = Nodes[nId];
+                        if (node.owner === bot.faction) {
+                            bCr += node.gen.credits;
+                            bEn += node.gen.energy;
+                            bTe += node.gen.tech;
+                            bInf += node.gen.influence;
+                        }
+                    }
+                    bot.credits += bCr;
+                    bot.energy = Math.min(100, bot.energy + bEn);
+                    bot.tech += bTe;
+                    bot.influence += bInf;
+
+                    // Hard bots invest in their highest value nodes periodically
+                    if (botDifficulty === 'hard' && bot.credits >= 60) {
+                        const ownedNodes = Object.values(Nodes).filter(n => n.owner === bot.faction);
+                        if (ownedNodes.length > 0) {
+                            const bestNode = ownedNodes.sort((a, b) => b.val - a.val)[0];
+                            bot.credits -= 50;
+                            bestNode.val += 15;
+                            bestNode.hp = Math.min(150, bestNode.hp + 30);
+                            logTerminal(`[INVEST] ${bot.name} upgraded Sector ${bestNode.id}`);
+                        }
+                    }
+                });
+            }
+
             updateStandings();
             updateUI();
 
@@ -826,7 +1282,8 @@
             }
         }
 
-        function gameLoop(timestamp) {
+        // Main Game Loop
+        function gameLoop() {
             if (!isGameRunning) return;
 
             updateGamePhysics();
@@ -835,64 +1292,255 @@
             requestAnimationFrame(gameLoop);
         }
 
+        // Update Physics & AI Bot Mechanics
         function updateGamePhysics() {
+            // Player Movement (WASD / Arrows)
             let dx = 0, dy = 0;
-            if (keys['w']) dy = -1;
-            if (keys['s']) dy = 1;
-            if (keys['a']) dx = -1;
-            if (keys['d']) dx = 1;
+            if (keys['w'] || keys['arrowup']) dy = -1;
+            if (keys['s'] || keys['arrowdown']) dy = 1;
+            if (keys['a'] || keys['arrowleft']) dx = -1;
+            if (keys['d'] || keys['arrowright']) dx = 1;
 
             if (dx !== 0 || dy !== 0) {
                 const len = Math.hypot(dx, dy);
                 playerObj.x += (dx / len) * 4;
                 playerObj.y += (dy / len) * 4;
 
-                // Broadcast player position to other clients
-                sendSocketMessage({
-                    type: 'update_state',
-                    state: { x: playerObj.x, y: playerObj.y, score: playerObj.score, faction: myFaction }
-                });
+                if (gameMode === 'multiplayer') {
+                    sendSocketMessage({
+                        type: 'update_state',
+                        state: { x: playerObj.x, y: playerObj.y, score: playerObj.score, faction: myFaction }
+                    });
+                }
             }
 
             playerObj.x = Math.max(30, Math.min(canvas.width - 30, playerObj.x));
             playerObj.y = Math.max(30, Math.min(canvas.height - 30, playerObj.y));
 
-            // Move bullets
+            // Player node capturing
+            for (const nId in Nodes) {
+                const node = Nodes[nId];
+                const dist = Math.hypot(playerObj.x - node.x, playerObj.y - node.y);
+                if (dist < 28 && node.owner !== myFaction) {
+                    node.hp -= 0.6;
+                    if (node.hp <= 0) {
+                        node.owner = myFaction;
+                        node.hp = 100;
+                        playSound('capture');
+                        logTerminal(`[SECTOR] Sector ${node.id} captured by ${Factions[myFaction].name}!`);
+                        spawnFloatingText(node.x, node.y - 30, `+${node.val} VAL`, '#ffd700');
+                        updateStandings();
+
+                        if (gameMode === 'multiplayer') {
+                            sendSocketMessage({
+                                type: 'capture',
+                                nodeId: node.id,
+                                owner: myFaction
+                            });
+                        }
+                    }
+                }
+            }
+
+            // AI Bots Update (Solo Mode)
+            if (gameMode === 'solo') {
+                updateBots();
+            }
+
+            // Update Bullets & Precision Collisions
             for (let i = bullets.length - 1; i >= 0; i--) {
                 const b = bullets[i];
                 b.x += b.vx;
                 b.y += b.vy;
 
+                // Screen bounds
                 if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) {
                     bullets.splice(i, 1);
+                    continue;
                 }
-            }
 
-            // Capture node if player stands inside
-            for (const nId in Nodes) {
-                const node = Nodes[nId];
-                const dist = Math.hypot(playerObj.x - node.x, playerObj.y - node.y);
-                if (dist < 28 && node.owner !== myFaction) {
-                    node.hp -= 0.5;
-                    if (node.hp <= 0) {
-                        node.owner = myFaction;
-                        node.hp = 100;
-                        
-                        // Send capture update via socket
-                        sendSocketMessage({
-                            type: 'capture',
-                            nodeId: node.id,
-                            owner: myFaction
-                        });
+                let bulletRemoved = false;
+
+                // 1. Bullet collision with Enemy / Neutral Node (Long-Range Sector Bombardment)
+                for (const nId in Nodes) {
+                    const node = Nodes[nId];
+                    const distToNode = Math.hypot(b.x - node.x, b.y - node.y);
+                    if (distToNode < 26 && node.owner !== b.owner) {
+                        node.hp -= 10;
+                        spawnHitParticles(b.x, b.y, b.color);
+                        playSound('hit');
+                        spawnFloatingText(node.x, node.y - 30, '🎯 -10 HP', '#ff007f');
+
+                        if (node.hp <= 0) {
+                            node.owner = b.owner;
+                            node.hp = 100;
+                            playSound('capture');
+                            logTerminal(`[SNIPER] Sector ${node.id} captured via laser bombardment by ${Factions[b.owner]?.name || b.owner}!`);
+                            updateStandings();
+
+                            if (gameMode === 'multiplayer') {
+                                sendSocketMessage({ type: 'capture', nodeId: node.id, owner: b.owner });
+                            }
+                        }
+
+                        bullets.splice(i, 1);
+                        bulletRemoved = true;
+                        break;
+                    }
+                }
+                if (bulletRemoved) continue;
+
+                // 2. Check collision with Player
+                if (b.owner !== myFaction) {
+                    const distToPlayer = Math.hypot(b.x - playerObj.x, b.y - playerObj.y);
+                    if (distToPlayer < 18) {
+                        playerObj.energy = Math.max(0, playerObj.energy - 15);
+                        spawnHitParticles(playerObj.x, playerObj.y, '#ff3b30');
+                        spawnFloatingText(playerObj.x, playerObj.y - 20, '-15 EN DRAIN', '#ff3b30');
+                        playSound('hit');
+                        bullets.splice(i, 1);
+                        updateUI();
+                        continue;
+                    }
+                }
+
+                // 3. Check collision with Bots (Solo Mode)
+                if (gameMode === 'solo') {
+                    for (const bot of bots) {
+                        if (b.owner !== bot.faction) {
+                            const distToBot = Math.hypot(b.x - bot.x, b.y - bot.y);
+                            if (distToBot < 18) {
+                                bot.energy = Math.max(0, bot.energy - 15);
+                                spawnHitParticles(bot.x, bot.y, Factions[bot.faction]?.color || '#ff007f');
+                                playSound('hit');
+
+                                if (b.owner === myFaction) {
+                                    playerObj.credits += 5;
+                                    spawnFloatingText(bot.x, bot.y - 20, '+5 CR BOUNTY', '#ffd700');
+                                    spawnFloatingText(bot.x, bot.y - 35, '-15 EN DRAIN', '#39ff14');
+                                    updateUI();
+                                } else {
+                                    spawnFloatingText(bot.x, bot.y - 20, '-15 EN', '#ff007f');
+                                }
+
+                                bullets.splice(i, 1);
+                                break;
+                            }
+                        }
                     }
                 }
             }
+
+            // Update Hit Particles
+            for (let i = hitParticles.length - 1; i >= 0; i--) {
+                const p = hitParticles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vx *= 0.92;
+                p.vy *= 0.92;
+                p.life--;
+                if (p.life <= 0) hitParticles.splice(i, 1);
+            }
+
+            // Update Floating Texts
+            for (let i = floatingTexts.length - 1; i >= 0; i--) {
+                const ft = floatingTexts[i];
+                ft.y -= 0.6;
+                ft.life--;
+                if (ft.life <= 0) floatingTexts.splice(i, 1);
+            }
         }
 
+        // Autonomous Bot Logic Engine
+        function updateBots() {
+            const cfg = DIFFICULTY_CONFIG[botDifficulty];
+
+            bots.forEach(bot => {
+                bot.decisionTimer--;
+                bot.shootCooldown--;
+
+                // 1. Target Node Selection / Game-Theoretic Utility Evaluation
+                if (bot.decisionTimer <= 0 || !bot.targetNode || Nodes[bot.targetNode]?.owner === bot.faction) {
+                    bot.decisionTimer = botDifficulty === 'easy' ? 90 : (botDifficulty === 'medium' ? 45 : 20);
+
+                    const unownedOrEnemyNodes = Object.values(Nodes).filter(n => n.owner !== bot.faction);
+                    
+                    if (unownedOrEnemyNodes.length > 0) {
+                        if (botDifficulty === 'easy') {
+                            bot.targetNode = unownedOrEnemyNodes[Math.floor(Math.random() * unownedOrEnemyNodes.length)].id;
+                        } else if (botDifficulty === 'medium') {
+                            unownedOrEnemyNodes.sort((a, b) => {
+                                const distA = Math.hypot(a.x - bot.x, a.y - bot.y);
+                                const distB = Math.hypot(b.x - bot.x, b.y - bot.y);
+                                return distA - distB;
+                            });
+                            bot.targetNode = unownedOrEnemyNodes[0].id;
+                        } else {
+                            unownedOrEnemyNodes.sort((a, b) => {
+                                const distA = Math.hypot(a.x - bot.x, a.y - bot.y) + 1;
+                                const distB = Math.hypot(b.x - bot.x, b.y - bot.y) + 1;
+                                const isPlayerNodeA = a.owner === myFaction ? 1.3 : 1.0;
+                                const isPlayerNodeB = b.owner === myFaction ? 1.3 : 1.0;
+                                const utilA = (a.val * isPlayerNodeA) / (distA * 0.8);
+                                const utilB = (b.val * isPlayerNodeB) / (distB * 0.8);
+                                return utilB - utilA;
+                            });
+                            bot.targetNode = unownedOrEnemyNodes[0].id;
+                        }
+                    }
+                }
+
+                // 2. Movement Towards Target Node (Tunable Bot Speeds)
+                if (bot.targetNode && Nodes[bot.targetNode]) {
+                    const target = Nodes[bot.targetNode];
+                    const angle = Math.atan2(target.y - bot.y, target.x - bot.x);
+                    
+                    bot.x += Math.cos(angle) * bot.speed;
+                    bot.y += Math.sin(angle) * bot.speed;
+
+                    // Node Capturing by Bot
+                    const distToTarget = Math.hypot(target.x - bot.x, target.y - bot.y);
+                    if (distToTarget < 28 && target.owner !== bot.faction) {
+                        target.hp -= cfg.captureRate;
+                        if (target.hp <= 0) {
+                            target.owner = bot.faction;
+                            target.hp = 100;
+                            playSound('capture');
+                            logTerminal(`[SECTOR] Sector ${target.id} captured by ${bot.name}!`);
+                            spawnFloatingText(target.x, target.y - 30, `+${target.val} VAL`, Factions[bot.faction].color);
+                            updateStandings();
+                        }
+                    }
+                }
+
+                // 3. Combat Shooting
+                if (bot.shootCooldown <= 0 && bot.energy >= 5) {
+                    bot.shootCooldown = cfg.shootInterval + Math.floor(Math.random() * 40);
+
+                    const distToPlayer = Math.hypot(playerObj.x - bot.x, playerObj.y - bot.y);
+                    if (distToPlayer < (botDifficulty === 'easy' ? 180 : 360)) {
+                        bot.energy -= 5;
+                        const angle = Math.atan2(playerObj.y - bot.y, playerObj.x - bot.x);
+                        const spread = botDifficulty === 'easy' ? (Math.random() - 0.5) * 0.4 : (Math.random() - 0.5) * 0.15;
+                        bullets.push({
+                            x: bot.x,
+                            y: bot.y,
+                            vx: Math.cos(angle + spread) * cfg.bulletSpeed,
+                            vy: Math.sin(angle + spread) * cfg.bulletSpeed,
+                            owner: bot.faction,
+                            color: Factions[bot.faction].color
+                        });
+                        playSound('laser');
+                    }
+                }
+            });
+        }
+
+        // Render Canvas
         function drawGame() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Draw connections
+            // Draw Territory Connections (Neon Grid Lines)
             const connected = new Set();
             for (const nId in Nodes) {
                 const node = Nodes[nId];
@@ -911,13 +1559,26 @@
                 });
             }
 
-            // Draw Node bases
+            // Draw Node Bases
             for (const nId in Nodes) {
                 const node = Nodes[nId];
                 const color = Factions[node.owner]?.color || '#4a5568';
+                const isSelected = selectedNode === nId;
                 
+                if (isSelected) {
+                    ctx.save();
+                    ctx.shadowColor = '#00f0ff';
+                    ctx.shadowBlur = 15;
+                    ctx.strokeStyle = '#00f0ff';
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, 28, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
                 ctx.strokeStyle = color;
-                ctx.lineWidth = selectedNode === nId ? 4 : 2;
+                ctx.lineWidth = 2;
                 ctx.fillStyle = '#0a0d18';
                 
                 ctx.beginPath();
@@ -925,10 +1586,12 @@
                 ctx.fill();
                 ctx.stroke();
 
-                // Draw capture bar if under contest
-                if (node.owner !== myFaction && Math.hypot(playerObj.x - node.x, playerObj.y - node.y) < 28) {
-                    ctx.fillStyle = 'rgba(0, 240, 255, 0.3)';
+                // Capture Gauge Bar
+                if (node.hp < 100) {
+                    ctx.fillStyle = 'rgba(255, 0, 127, 0.4)';
                     ctx.fillRect(node.x - 20, node.y - 35, 40 * (1 - (node.hp / 100)), 5);
+                    ctx.strokeStyle = '#ff007f';
+                    ctx.strokeRect(node.x - 20, node.y - 35, 40, 5);
                 }
 
                 ctx.fillStyle = 'white';
@@ -942,34 +1605,104 @@
                 ctx.fillText(node.type, node.x, node.y + 10);
             }
 
-            // Draw other players
-            for (const id in otherPlayers) {
-                const op = otherPlayers[id];
-                ctx.fillStyle = Factions[op.faction]?.color || '#ffffff';
+            // Draw Aiming Guide / Trajectory Laser Line
+            if (mousePos.onCanvas && isGameRunning) {
+                ctx.save();
+                ctx.setLineDash([4, 6]);
+                ctx.strokeStyle = 'rgba(0, 240, 255, 0.35)';
+                ctx.lineWidth = 1.5;
                 ctx.beginPath();
-                ctx.arc(op.x, op.y, 14, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Draw badge name
-                ctx.fillStyle = '#a0aec0';
-                ctx.font = '8px Orbitron';
-                ctx.fillText(Factions[op.faction]?.name || 'Creep', op.x, op.y - 20);
+                ctx.moveTo(playerObj.x, playerObj.y);
+                ctx.lineTo(mousePos.x, mousePos.y);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.restore();
             }
 
-            // Draw bullets
+            // Draw Bullets with Glowing Neon Trail
             bullets.forEach(b => {
+                ctx.save();
                 ctx.fillStyle = b.color;
+                ctx.shadowColor = b.color;
+                ctx.shadowBlur = 10;
                 ctx.beginPath();
                 ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
                 ctx.fill();
+                ctx.restore();
             });
 
-            // Draw Local Player Commander Node
+            // Draw Hit Spark Particles
+            hitParticles.forEach(p => {
+                ctx.save();
+                ctx.strokeStyle = p.color;
+                ctx.lineWidth = 2;
+                ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(p.x - p.vx * 3, p.y - p.vy * 3);
+                ctx.stroke();
+                ctx.restore();
+            });
+
+            // Draw AI Bots (Solo Mode)
+            if (gameMode === 'solo') {
+                bots.forEach(bot => {
+                    const color = Factions[bot.faction]?.color || '#ffffff';
+                    
+                    // Propulsion trail
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                    ctx.beginPath();
+                    ctx.arc(bot.x, bot.y, 18, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Bot ship body
+                    ctx.fillStyle = color;
+                    ctx.strokeStyle = '#05060b';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(bot.x, bot.y, 13, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    // Inner Core
+                    ctx.fillStyle = '#0a0d18';
+                    ctx.beginPath();
+                    ctx.arc(bot.x, bot.y, 5, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Badge Name & Speed Indicator
+                    ctx.fillStyle = '#a0aec0';
+                    ctx.font = '8px Orbitron';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(bot.name, bot.x, bot.y - 18);
+                });
+            }
+
+            // Draw Other Multiplayer Players
+            if (gameMode === 'multiplayer') {
+                for (const id in otherPlayers) {
+                    const op = otherPlayers[id];
+                    ctx.fillStyle = Factions[op.faction]?.color || '#ffffff';
+                    ctx.beginPath();
+                    ctx.arc(op.x, op.y, 14, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = '#a0aec0';
+                    ctx.font = '8px Orbitron';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(Factions[op.faction]?.name || 'Player', op.x, op.y - 20);
+                }
+            }
+
+            // Draw Local Player Commander Ship
+            ctx.save();
+            ctx.shadowColor = '#00f0ff';
+            ctx.shadowBlur = 12;
             ctx.fillStyle = Factions[myFaction].color;
             ctx.strokeStyle = '#00f0ff';
             ctx.lineWidth = 3;
             ctx.beginPath();
-            ctx.arc(playerObj.x, playerObj.y, 14, 0, Math.PI * 2);
+            ctx.arc(playerObj.x, playerObj.y, 15, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
 
@@ -977,10 +1710,84 @@
             ctx.beginPath();
             ctx.arc(playerObj.x, playerObj.y, 6, 0, Math.PI * 2);
             ctx.fill();
+            ctx.restore();
+
+            // Player Commander Badge
+            ctx.fillStyle = '#00f0ff';
+            ctx.font = 'bold 9px Orbitron';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${Factions[myFaction].name} (YOU)`, playerObj.x, playerObj.y - 22);
+
+            // Draw Precision Cyber Crosshair Reticle at Cursor
+            if (mousePos.onCanvas && isGameRunning) {
+                const mx = mousePos.x;
+                const my = mousePos.y;
+
+                // Check if aiming over enemy bot or enemy node
+                let isTargetLocked = false;
+                if (gameMode === 'solo') {
+                    isTargetLocked = bots.some(b => Math.hypot(mx - b.x, my - b.y) < 22);
+                }
+                if (!isTargetLocked) {
+                    isTargetLocked = Object.values(Nodes).some(n => n.owner !== myFaction && Math.hypot(mx - n.x, my - n.y) < 28);
+                }
+
+                const reticleColor = isTargetLocked ? '#ff007f' : '#00f0ff';
+                const reticleSize = isTargetLocked ? 16 : 12;
+
+                ctx.save();
+                ctx.strokeStyle = reticleColor;
+                ctx.fillStyle = reticleColor;
+                ctx.lineWidth = 1.5;
+                ctx.shadowColor = reticleColor;
+                ctx.shadowBlur = 8;
+
+                // Center precision dot
+                ctx.beginPath();
+                ctx.arc(mx, my, 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Outer Crosshair Brackets
+                ctx.beginPath();
+                ctx.arc(mx, my, reticleSize, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Crosshair tick marks
+                ctx.beginPath();
+                ctx.moveTo(mx - reticleSize - 5, my);
+                ctx.lineTo(mx - reticleSize + 2, my);
+                ctx.moveTo(mx + reticleSize - 2, my);
+                ctx.lineTo(mx + reticleSize + 5, my);
+                ctx.moveTo(mx, my - reticleSize - 5);
+                ctx.lineTo(mx, my - reticleSize + 2);
+                ctx.moveTo(mx, my + reticleSize - 2);
+                ctx.lineTo(mx, my + reticleSize + 5);
+                ctx.stroke();
+
+                if (isTargetLocked) {
+                    ctx.font = 'bold 8px Orbitron';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('[LOCKED]', mx, my - reticleSize - 8);
+                }
+
+                ctx.restore();
+            }
+
+            // Draw Floating Combat & Action Texts
+            floatingTexts.forEach(ft => {
+                ctx.save();
+                ctx.fillStyle = ft.color;
+                ctx.font = 'bold 10px Orbitron';
+                ctx.textAlign = 'center';
+                ctx.globalAlpha = Math.max(0, ft.life / ft.maxLife);
+                ctx.fillText(ft.text, ft.x, ft.y);
+                ctx.restore();
+            });
         }
 
         function logTerminal(msg) {
             const terminal = document.getElementById('sector-terminal');
+            if (!terminal) return;
             terminal.innerHTML += `\n> ${msg}`;
             terminal.scrollTop = terminal.scrollHeight;
         }
@@ -995,6 +1802,7 @@
 
         function updateStandings() {
             const list = document.getElementById('standings-list');
+            if (!list) return;
             list.innerHTML = '';
 
             const scores = { NOVA: 0, VORTEX: 0, PULSE: 0, SYNTH: 0 };
@@ -1008,13 +1816,21 @@
             scores[myFaction] += Math.round(playerObj.credits * 0.1 + playerObj.energy * 0.1);
             playerObj.score = scores[myFaction];
 
+            if (gameMode === 'solo') {
+                bots.forEach(bot => {
+                    scores[bot.faction] += Math.round(bot.credits * 0.1 + bot.energy * 0.1);
+                    bot.score = scores[bot.faction];
+                });
+            }
+
             const sorted = Object.keys(Factions).sort((a,b) => scores[b] - scores[a]);
             sorted.forEach(fId => {
                 const faction = Factions[fId];
                 const count = Object.values(Nodes).filter(n => n.owner === fId).length;
+                const isYou = fId === myFaction ? ' (You)' : (gameMode === 'solo' ? ' (Bot)' : '');
                 list.innerHTML += `
                     <div class="standing-row" style="border-left: 3px solid ${faction.color}">
-                        <div style="font-weight: 600;">${faction.name} (${count} Sectors)</div>
+                        <div style="font-weight: 600;">${faction.name}${isYou} (${count} Sectors)</div>
                         <div style="font-family: 'Orbitron'; font-weight: bold;">${scores[fId]}</div>
                     </div>
                 `;
@@ -1023,6 +1839,7 @@
 
         function updateGTMatrix() {
             const territory = Nodes[selectedNode];
+            if (!territory) return;
             const title = document.getElementById('matrix-title');
             title.innerText = `Sector ${territory.id} Dynamic Matrix`;
 
@@ -1044,10 +1861,10 @@
 
         function endGame() {
             isGameRunning = false;
+            if (timerInterval) clearInterval(timerInterval);
             const overlay = document.getElementById('end-overlay');
             overlay.classList.add('active');
 
-            // Gather all players
             const resultsList = [];
             
             // Add local player
@@ -1062,40 +1879,37 @@
                 influence: playerObj.influence
             });
 
-            // Add other players
-            for (const id in otherPlayers) {
-                const op = otherPlayers[id];
-                const opFaction = op.faction;
-                resultsList.push({
-                    name: Factions[opFaction]?.name || "Guest Player",
-                    faction: opFaction,
-                    score: op.score || 0,
-                    sectors: Object.values(Nodes).filter(n => n.owner === opFaction).length,
-                    credits: Math.round(op.score * 0.4),
-                    energy: Math.round(op.score * 0.2),
-                    tech: Math.round(op.score * 0.1),
-                    influence: Math.round(op.score * 0.1)
+            if (gameMode === 'solo') {
+                // Add actual AI Bots
+                bots.forEach(bot => {
+                    resultsList.push({
+                        name: bot.name,
+                        faction: bot.faction,
+                        score: bot.score,
+                        sectors: Object.values(Nodes).filter(n => n.owner === bot.faction).length,
+                        credits: bot.credits,
+                        energy: bot.energy,
+                        tech: bot.tech,
+                        influence: bot.influence
+                    });
                 });
+            } else {
+                // Add other multiplayer clients
+                for (const id in otherPlayers) {
+                    const op = otherPlayers[id];
+                    const opFaction = op.faction;
+                    resultsList.push({
+                        name: Factions[opFaction]?.name || "Guest Player",
+                        faction: opFaction,
+                        score: op.score || 0,
+                        sectors: Object.values(Nodes).filter(n => n.owner === opFaction).length,
+                        credits: Math.round(op.score * 0.4),
+                        energy: Math.round(op.score * 0.2),
+                        tech: Math.round(op.score * 0.1),
+                        influence: Math.round(op.score * 0.1)
+                    });
+                }
             }
-
-            // Fill empty slots with simulated AI players if there are fewer than 4 players total
-            const activeFactions = resultsList.map(r => r.faction);
-            const remainingFactions = ['NOVA', 'VORTEX', 'PULSE', 'SYNTH'].filter(f => !activeFactions.includes(f));
-            
-            remainingFactions.forEach(faction => {
-                const secCount = Object.values(Nodes).filter(n => n.owner === faction).length;
-                const score = secCount * 70 + Math.floor(Math.random() * 80);
-                resultsList.push({
-                    name: Factions[faction].name + " (AI)",
-                    faction: faction,
-                    score: score,
-                    sectors: secCount,
-                    credits: Math.round(score * 0.3),
-                    energy: Math.round(score * 0.2),
-                    tech: Math.round(score * 0.1),
-                    influence: Math.round(score * 0.1)
-                });
-            });
 
             // Sort by score descending
             resultsList.sort((a, b) => b.score - a.score);
@@ -1103,8 +1917,8 @@
             // Generate HTML Leaderboard
             const results = document.getElementById('end-results');
             results.innerHTML = `
-                <div style="font-family: 'Orbitron'; font-weight: bold; font-size: 13px; color: var(--neon-blue); border-bottom: 1px solid rgba(0, 240, 255, 0.2); padding-bottom: 8px; margin-bottom: 12px; display: flex; justify-content: space-between;">
-                    <span>RANK & FACTION</span>
+                <div style="font-family: 'Orbitron'; font-weight: bold; font-size: 12px; color: var(--neon-blue); border-bottom: 1px solid rgba(0, 240, 255, 0.2); padding-bottom: 8px; margin-bottom: 12px; display: flex; justify-content: space-between;">
+                    <span>RANK & COMMANDER</span>
                     <span style="margin-left: auto; margin-right: 30px;">SECTORS</span>
                     <span>SCORE</span>
                 </div>
@@ -1116,7 +1930,7 @@
                 if (idx === 1) badge = '🥈';
                 if (idx === 2) badge = '🥉';
 
-                const color = Factions[r.faction].color;
+                const color = Factions[r.faction]?.color || '#ffffff';
 
                 results.innerHTML += `
                     <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-left: 4px solid ${color}; border-radius: 6px; padding: 10px 15px; margin-bottom: 8px; text-align: left;">
