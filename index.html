@@ -471,6 +471,52 @@
             transform: translateY(-1px);
             box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
         }
+
+        .exit-btn {
+            background: rgba(255, 59, 48, 0.12);
+            border: 1px solid rgba(255, 59, 48, 0.4);
+            color: #ff3b30;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 0 8px rgba(255, 59, 48, 0.15);
+        }
+
+        .exit-btn:hover {
+            background: rgba(255, 59, 48, 0.3);
+            border-color: #ff3b30;
+            box-shadow: 0 0 15px rgba(255, 59, 48, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .sidebar-exit-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+            color: #ff4d4f;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .sidebar-exit-btn:hover {
+            background: rgba(255, 59, 48, 0.2);
+            border-color: #ff3b30;
+            box-shadow: 0 0 12px rgba(255, 59, 48, 0.35);
+        }
     </style>
 </head>
 <body>
@@ -489,6 +535,7 @@
                 <div class="hud-label">Your Score</div>
                 <div class="hud-val" id="score-val" style="color: var(--neon-pink);">0</div>
             </div>
+            <button class="exit-btn" id="header-exit-btn" onclick="confirmExitGame()" title="Exit match and return to lobby">⛔ ABORT MATCH</button>
         </div>
     </header>
 
@@ -536,6 +583,8 @@
 
             <button class="exec-ability-btn" onclick="executeCurrentAbility()">⚡ Trigger on Selected Node</button>
             <div style="font-size: 9px; color: #8a99ad; margin-top: 6px; text-align: center;">Or press [Space] / [1, 2, 3] keys</div>
+
+            <button class="sidebar-exit-btn" onclick="confirmExitGame()">🚪 Exit Match to Lobby (Esc)</button>
         </div>
 
         <!-- Center Canvas -->
@@ -674,6 +723,20 @@
                 <!-- Results -->
             </div>
             <button class="btn" onclick="location.reload()">Re-Deploy / New Game</button>
+        </div>
+    </div>
+
+    <!-- Abort / Exit Confirmation Overlay -->
+    <div class="overlay" id="exit-confirm-overlay">
+        <div class="overlay-box" style="max-width: 440px; border-color: #ff3b30; box-shadow: 0 0 30px rgba(255, 59, 48, 0.35);">
+            <h2 class="logo" style="font-size: 22px; margin-bottom: 12px; background: linear-gradient(90deg, #ff3b30, #ff007f); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">ABORT MISSION?</h2>
+            <p style="font-size: 11px; color: #a0aec0; margin-bottom: 22px; line-height: 1.5;">
+                Are you sure you want to exit the current battle and return to the deployment lobby? Current score and captured sectors will be reset.
+            </p>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn" style="flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); margin-top: 0;" onclick="cancelExitGame()">Resume</button>
+                <button class="btn" style="flex: 1; background: linear-gradient(90deg, #ff3b30, #ff007f); margin-top: 0; box-shadow: 0 0 15px rgba(255,59,48,0.4);" onclick="executeExitGame()">Abort & Exit</button>
+            </div>
         </div>
     </div>
 
@@ -928,8 +991,82 @@
                 e.preventDefault();
                 executeCurrentAbility();
             }
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                if (isGameRunning) {
+                    const confirmModal = document.getElementById('exit-confirm-overlay');
+                    if (confirmModal.classList.contains('active')) {
+                        cancelExitGame();
+                    } else {
+                        confirmExitGame();
+                    }
+                }
+            }
         });
         window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+        // Exit / Abort Game Handling
+        function confirmExitGame() {
+            if (!isGameRunning) return;
+            document.getElementById('exit-confirm-overlay').classList.add('active');
+        }
+
+        function cancelExitGame() {
+            document.getElementById('exit-confirm-overlay').classList.remove('active');
+        }
+
+        function executeExitGame() {
+            isGameRunning = false;
+            if (timerInterval) clearInterval(timerInterval);
+            document.getElementById('exit-confirm-overlay').classList.remove('active');
+            
+            // Clean up session state
+            resetGameEnvironment();
+
+            // Return to Lobby Screen
+            document.getElementById('overlay').classList.add('active');
+            document.getElementById('lobby-panel').style.display = 'block';
+            document.getElementById('waiting-panel').style.display = 'none';
+            document.getElementById('header-subtitle').innerText = 'Real-time Game-Theoretic Commander';
+            document.getElementById('multiplayer-status-text').innerText = 'SOLO DEPLOYMENT: Ready';
+            document.getElementById('time-val').innerText = '03:00';
+            
+            logTerminal('[MISSION ABORTED] Match terminated. Commander returned to lobby.');
+        }
+
+        function resetGameEnvironment() {
+            // Reset Base Nodes Configuration
+            const defaultOwners = {
+                T01: 'NOVA', T02: 'PULSE', T03: 'NOVA', T04: 'VORTEX',
+                T05: null, T06: null, T07: null, T08: null,
+                T09: 'SYNTH', T10: 'PULSE', T11: 'VORTEX', T12: 'SYNTH',
+                T13: null, T14: null
+            };
+
+            for (const nId in Nodes) {
+                Nodes[nId].owner = defaultOwners[nId] || null;
+                Nodes[nId].hp = 100;
+            }
+
+            // Reset Player
+            playerObj.credits = 100;
+            playerObj.energy = 80;
+            playerObj.tech = 20;
+            playerObj.influence = 20;
+            playerObj.score = 0;
+            playerObj.hp = 100;
+
+            // Reset arrays
+            bots = [];
+            bullets.length = 0;
+            hitParticles.length = 0;
+            floatingTexts.length = 0;
+            gameTime = 180;
+
+            updateUI();
+            updateStandings();
+            updateGTMatrix();
+        }
 
         // Track Mouse Movement for Precise Crosshair & Aiming Line
         canvas.addEventListener('mousemove', e => {
