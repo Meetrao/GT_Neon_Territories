@@ -874,11 +874,11 @@
 
         // UI Tabs & Selectors
         function switchModeTab(tab) {
-            gameMode = tab;
+            gameMode = tab === 'multi' ? 'multiplayer' : 'solo';
             document.getElementById('tab-solo').classList.toggle('active', tab === 'solo');
             document.getElementById('tab-multi').classList.toggle('active', tab === 'multi');
             document.getElementById('solo-view-panel').style.display = tab === 'solo' ? 'block' : 'none';
-            document.getElementById('multi-view-panel').style.display = tab === 'multi' ? 'none' : 'block';
+            document.getElementById('multi-view-panel').style.display = tab === 'multi' ? 'block' : 'none';
         }
 
         function selectFaction(fKey) {

@@ -36,3 +36,8 @@ yarn-error.log*
 .idea/
 .history/
 .gemini/
+
+# Documentation
+DOCUMENTATION.md
+SYSTEM_DIAGRAMS_REPORT.md
+DIAGRAMS_PREVIEW.html
