@@ -2085,6 +2085,14 @@
                     </div>
                 `;
             });
+
+            if (gameMode === 'multiplayer' && isHost && resultsList.length > 0) {
+                sendSocketMessage({
+                    type: 'save_match',
+                    winner: resultsList[0].faction,
+                    score: resultsList[0].score
+                });
+            }
         }
 
         // Initialize Sockets and UI

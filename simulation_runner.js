@@ -576,6 +576,18 @@ class NeonSimulation {
     }
 }
 
+module.exports = {
+    PlayerResources,
+    Player,
+    Territory,
+    UtilityCalculator,
+    StrategyPredictor,
+    PayoffCalculator,
+    NeonSimulation
+};
+
 // Start simulation immediately if run via terminal
-const sim = new NeonSimulation();
-sim.runAll();
+if (require.main === module) {
+    const sim = new NeonSimulation();
+    sim.runAll();
+}

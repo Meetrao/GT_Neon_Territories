@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "sim": "node simulation_runner.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,10 @@
   },
   "homepage": "https://github.com/Meetrao/GT_Neon_Territories#readme",
   "dependencies": {
+    "sqlite3": "^6.0.1",
     "ws": "^8.21.3"
+  },
+  "devDependencies": {
+    "jest": "^30.5.2"
   }
 }

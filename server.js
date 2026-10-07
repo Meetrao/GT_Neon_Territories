@@ -2,6 +2,7 @@ const { WebSocketServer } = require('ws');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { saveMatch } = require('./db');
 
 const PORT = process.env.PORT || 8080;
 const MIME_TYPES = {
@@ -192,6 +193,13 @@ wss.on('connection', (ws) => {
                             creeps: data.creeps,
                             timeRemaining: data.timeRemaining
                         }, playerId);
+                    }
+                    break;
+                }
+
+                case 'save_match': {
+                    if (currentRoom && rooms[currentRoom] && rooms[currentRoom].hostId === playerId) {
+                        saveMatch(currentRoom, data.winner, data.score);
                     }
                     break;
                 }
