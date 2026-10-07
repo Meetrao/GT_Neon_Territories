@@ -535,7 +535,7 @@
                 <div class="hud-label">Your Score</div>
                 <div class="hud-val" id="score-val" style="color: var(--neon-pink);">0</div>
             </div>
-            <button class="exit-btn" id="header-exit-btn" onclick="confirmExitGame()" title="Exit match and return to lobby">⛔ ABORT MATCH</button>
+            <button class="exit-btn" id="header-exit-btn" onclick="confirmExitGame()" title="Exit match and return to lobby">ABORT MATCH</button>
         </div>
     </header>
 
@@ -569,22 +569,22 @@
 
             <div class="panel-title">TACTICAL COMMANDS</div>
             <div class="ability-btn active" id="ab-strike" onclick="setAbility('strike')">
-                <span class="ability-title">🎯 [1] Strike Force</span>
+                <span class="ability-title">[1] Strike Force</span>
                 <span class="ability-cost">Cost: 30 Energy (-40 Node HP)</span>
             </div>
             <div class="ability-btn" id="ab-shield" onclick="setAbility('shield')">
-                <span class="ability-title">🛡️ [2] Fortify Defense</span>
+                <span class="ability-title">[2] Fortify Defense</span>
                 <span class="ability-cost">Cost: 20 En / 20 Cr (+50 HP)</span>
             </div>
             <div class="ability-btn" id="ab-upgrade" onclick="setAbility('upgrade')">
-                <span class="ability-title">📈 [3] Invest in Node</span>
+                <span class="ability-title">[3] Invest in Node</span>
                 <span class="ability-cost">Cost: 50 Credits (+Gen Rate)</span>
             </div>
 
-            <button class="exec-ability-btn" onclick="executeCurrentAbility()">⚡ Trigger on Selected Node</button>
+            <button class="exec-ability-btn" onclick="executeCurrentAbility()">Trigger on Selected Node</button>
             <div style="font-size: 9px; color: #8a99ad; margin-top: 6px; text-align: center;">Or press [Space] / [1, 2, 3] keys</div>
 
-            <button class="sidebar-exit-btn" onclick="confirmExitGame()">🚪 Exit Match to Lobby (Esc)</button>
+            <button class="sidebar-exit-btn" onclick="confirmExitGame()">Exit Match to Lobby (Esc)</button>
         </div>
 
         <!-- Center Canvas -->
@@ -640,8 +640,8 @@
             <h1 class="logo" style="font-size: 26px; margin-bottom: 12px;">NEON TERRITORIES</h1>
 
             <div class="mode-tabs">
-                <button class="mode-tab active" id="tab-solo" onclick="switchModeTab('solo')">⚡ SOLO VS BOTS</button>
-                <button class="mode-tab" id="tab-multi" onclick="switchModeTab('multi')">🌐 MULTIPLAYER ROOMS</button>
+                <button class="mode-tab active" id="tab-solo" onclick="switchModeTab('solo')">SOLO VS BOTS</button>
+                <button class="mode-tab" id="tab-multi" onclick="switchModeTab('multi')">MULTIPLAYER ROOMS</button>
             </div>
 
             <!-- Faction Selection -->
@@ -670,22 +670,22 @@
                 <div style="font-size: 10px; color: #8a99ad; text-align: left; margin-bottom: 6px; font-weight: bold;">SELECT AI BOT DIFFICULTY:</div>
                 <div class="diff-grid">
                     <div class="diff-btn active diff-easy" id="diff-easy" onclick="selectDifficulty('easy')">
-                        🟢 EASY
+                        EASY
                     </div>
                     <div class="diff-btn diff-medium" id="diff-medium" onclick="selectDifficulty('medium')">
-                        🟡 MEDIUM
+                        MEDIUM
                     </div>
                     <div class="diff-btn diff-hard" id="diff-hard" onclick="selectDifficulty('hard')">
-                        🔴 HARD
+                        HARD
                     </div>
                 </div>
 
                 <div class="diff-info" id="diff-info-text">
-                    ⚡ <strong>Easy Mode:</strong> AI Bots move very slowly (1.1 speed), capture sectors at a relaxed rate, and rarely shoot. Ideal for learning territory strategies.
+                    <strong>Easy Mode:</strong> AI Bots move very slowly (1.1 speed), capture sectors at a relaxed rate, and rarely shoot. Ideal for learning territory strategies.
                 </div>
 
                 <button class="btn" style="margin-top: 5px; background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));" onclick="launchSoloMatch()">
-                    🚀 LAUNCH SOLO MISSION
+                    LAUNCH SOLO MISSION
                 </button>
             </div>
 
@@ -818,7 +818,7 @@
                 bulletSpeed: 5,
                 reactionRate: 0.03,
                 nameSuffix: ' (Easy Bot)',
-                desc: '⚡ <strong>Easy Mode:</strong> AI Bots move very slowly (1.1 speed), capture sectors at a relaxed rate, and rarely shoot. Ideal for learning territory strategies.'
+                desc: '<strong>Easy Mode:</strong> AI Bots move very slowly (1.1 speed), capture sectors at a relaxed rate, and rarely shoot. Ideal for learning territory strategies.'
             },
             medium: {
                 botSpeed: 2.3,             // Standard movement
@@ -827,7 +827,7 @@
                 bulletSpeed: 7,
                 reactionRate: 0.07,
                 nameSuffix: ' (Medium Bot)',
-                desc: '🟡 <strong>Medium Mode:</strong> AI Bots move at standard speed (2.3 speed), contest sectors actively, shoot lasers, and defend territories.'
+                desc: '<strong>Medium Mode:</strong> AI Bots move at standard speed (2.3 speed), contest sectors actively, shoot lasers, and defend territories.'
             },
             hard: {
                 botSpeed: 3.7,             // Fast and aggressive movement
@@ -836,7 +836,7 @@
                 bulletSpeed: 9,
                 reactionRate: 0.12,
                 nameSuffix: ' (Hard Bot)',
-                desc: '🔴 <strong>Hard Mode:</strong> Fast bots (3.7 speed), aggressive utility maximization, tactical ability usage, and high-intensity dogfighting!'
+                desc: '<strong>Hard Mode:</strong> Fast bots (3.7 speed), aggressive utility maximization, tactical ability usage, and high-intensity dogfighting!'
             }
         };
 
@@ -921,7 +921,7 @@
                 playerObj.energy -= 30;
                 if (node.owner !== myFaction) {
                     node.hp = Math.max(0, node.hp - 40);
-                    spawnFloatingText(node.x, node.y - 30, '🎯 STRIKE -40 HP', '#ff007f');
+                    spawnFloatingText(node.x, node.y - 30, 'STRIKE -40 HP', '#ff007f');
                     playSound('hit');
                     if (node.hp <= 0) {
                         node.owner = myFaction;
@@ -940,7 +940,7 @@
                 playerObj.energy -= 20;
                 playerObj.credits -= 20;
                 node.hp = Math.min(150, node.hp + 50);
-                spawnFloatingText(node.x, node.y - 30, '🛡️ FORTIFIED +50 HP', '#00f0ff');
+                spawnFloatingText(node.x, node.y - 30, 'FORTIFIED +50 HP', '#00f0ff');
                 playSound('capture');
                 logTerminal(`[FORTIFY] Sector ${node.id} shields reinforced.`);
             } else if (ability === 'upgrade') {
@@ -952,7 +952,7 @@
                 node.val += 15;
                 node.gen.credits += 10;
                 node.gen.energy += 10;
-                spawnFloatingText(node.x, node.y - 30, '📈 UPGRADED +15 VAL', '#39ff14');
+                spawnFloatingText(node.x, node.y - 30, 'UPGRADED +15 VAL', '#39ff14');
                 playSound('capture');
                 logTerminal(`[INVEST] Sector ${node.id} output and valuation increased.`);
             }
@@ -1213,7 +1213,7 @@
                             document.getElementById('room-code-display').innerText = `CODE: ${roomCode}`;
                             document.getElementById('start-game-btn').style.display = 'block';
                             document.getElementById('lobby-players').innerHTML = `
-                                <p style="color: var(--neon-green)">👑 ${Factions[myFaction].name} (You - Host)</p>
+                                <p style="color: var(--neon-green)">${Factions[myFaction].name} (You - Host)</p>
                             `;
                             break;
 
@@ -1282,7 +1282,7 @@
             if (!container || !list) return;
             container.innerHTML = list.map((p, idx) => {
                 const label = p.id === myId ? '(You)' : '';
-                const role = idx === 0 ? '👑' : '•';
+                const role = idx === 0 ? '(Host)' : '•';
                 return `<p>${role} ${Factions[p.faction]?.name || p.faction} ${label}</p>`;
             }).join('');
         }
@@ -1506,7 +1506,7 @@
                         node.hp -= 10;
                         spawnHitParticles(b.x, b.y, b.color);
                         playSound('hit');
-                        spawnFloatingText(node.x, node.y - 30, '🎯 -10 HP', '#ff007f');
+                        spawnFloatingText(node.x, node.y - 30, '-10 HP', '#ff007f');
 
                         if (node.hp <= 0) {
                             node.owner = b.owner;
@@ -2063,9 +2063,9 @@
 
             resultsList.forEach((r, idx) => {
                 let badge = '•';
-                if (idx === 0) badge = '🥇';
-                if (idx === 1) badge = '🥈';
-                if (idx === 2) badge = '🥉';
+                if (idx === 0) badge = '1st';
+                if (idx === 1) badge = '2nd';
+                if (idx === 2) badge = '3rd';
 
                 const color = Factions[r.faction]?.color || '#ffffff';
 

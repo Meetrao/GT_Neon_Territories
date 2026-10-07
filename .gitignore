@@ -41,3 +41,6 @@ yarn-error.log*
 DOCUMENTATION.md
 SYSTEM_DIAGRAMS_REPORT.md
 DIAGRAMS_PREVIEW.html
+
+# Database
+*.db
