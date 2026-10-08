@@ -519,14 +519,26 @@
         }
 
         @media (max-width: 1024px) {
-            body { height: auto; overflow-y: auto; overflow-x: hidden; }
-            .game-layout { flex-direction: column; height: auto; }
-            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-neon); padding: 10px; height: auto; max-height: none; }
-            .sidebar.right { width: 100%; border-left: none; border-top: 1px solid var(--border-neon); }
-            .canvas-area { height: 50vh; min-height: 400px; width: 100%; flex-grow: 0; }
-            header { height: auto; flex-wrap: wrap; gap: 10px; justify-content: center; text-align: center; }
-            .hud-stats { width: 100%; justify-content: center; flex-wrap: wrap; }
-            .overlay-box { max-width: 95%; padding: 20px; }
+            body { height: 100vh; overflow: hidden; }
+            .game-layout { flex-direction: column; height: calc(100vh - 60px); }
+            .canvas-area { order: -1; flex-grow: 1; height: auto; min-height: 0; width: 100%; }
+            .sidebar { 
+                width: 100%; 
+                border-right: none; 
+                border-top: 2px solid var(--neon-blue);
+                padding: 10px; 
+                height: 45%; 
+                overflow-y: auto;
+            }
+            .sidebar.right { display: none; }
+            .sidebar > div[style*="display: grid"] { gap: 4px !important; margin-bottom: 10px !important; }
+            .sidebar > div[style*="display: grid"] > div { padding: 4px !important; }
+            .ability-btn { padding: 8px; margin-bottom: 6px; }
+            .exec-ability-btn { padding: 15px; font-size: 14px; margin-top: 5px; }
+            .sidebar-exit-btn { display: none; }
+            header { height: auto; flex-wrap: wrap; gap: 10px; justify-content: center; text-align: center; padding: 10px; }
+            .hud-stats { width: 100%; justify-content: center; flex-wrap: wrap; gap: 15px; }
+            .overlay-box { max-width: 95%; padding: 20px; max-height: 90vh; overflow-y: auto; }
             #gameCanvas { touch-action: none; }
         }
     </style>
