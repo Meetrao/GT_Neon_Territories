@@ -517,7 +517,20 @@
             border-color: #ff3b30;
             box-shadow: 0 0 12px rgba(255, 59, 48, 0.35);
         }
+
+        @media (max-width: 1024px) {
+            body { height: auto; overflow-y: auto; overflow-x: hidden; }
+            .game-layout { flex-direction: column; height: auto; }
+            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-neon); padding: 10px; height: auto; max-height: none; }
+            .sidebar.right { width: 100%; border-left: none; border-top: 1px solid var(--border-neon); }
+            .canvas-area { height: 50vh; min-height: 400px; width: 100%; flex-grow: 0; }
+            header { height: auto; flex-wrap: wrap; gap: 10px; justify-content: center; text-align: center; }
+            .hud-stats { width: 100%; justify-content: center; flex-wrap: wrap; }
+            .overlay-box { max-width: 95%; padding: 20px; }
+            #gameCanvas { touch-action: none; }
+        }
     </style>
+
 </head>
 <body>
 
@@ -1068,24 +1081,54 @@
             updateGTMatrix();
         }
 
-        // Track Mouse Movement for Precise Crosshair & Aiming Line
-        canvas.addEventListener('mousemove', e => {
+        function getCanvasScaleAndOffset() {
+            const scale = Math.min(canvas.width / 800, canvas.height / 700);
+            const offsetX = (canvas.width - 800 * scale) / 2;
+            const offsetY = (canvas.height - 700 * scale) / 2;
+            return { scale, offsetX, offsetY };
+        }
+
+        function getEventPos(e, rect) {
+            let clientX, clientY;
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else if (e.changedTouches && e.changedTouches.length > 0) {
+                clientX = e.changedTouches[0].clientX;
+                clientY = e.changedTouches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            const { scale, offsetX, offsetY } = getCanvasScaleAndOffset();
+            const rawX = clientX - rect.left;
+            const rawY = clientY - rect.top;
+            return {
+                x: (rawX - offsetX) / scale,
+                y: (rawY - offsetY) / scale
+            };
+        }
+
+        function handlePointerMove(e) {
             const rect = canvas.getBoundingClientRect();
-            mousePos.x = e.clientX - rect.left;
-            mousePos.y = e.clientY - rect.top;
+            const pos = getEventPos(e, rect);
+            mousePos.x = pos.x;
+            mousePos.y = pos.y;
             mousePos.onCanvas = true;
-        });
+        }
 
-        canvas.addEventListener('mouseleave', () => {
-            mousePos.onCanvas = false;
-        });
+        canvas.addEventListener('mousemove', handlePointerMove);
+        canvas.addEventListener('touchmove', handlePointerMove, {passive: true});
 
-        // Precision Click Listener (Selection or Direct Laser Fire)
-        canvas.addEventListener('click', e => {
+        canvas.addEventListener('mouseleave', () => { mousePos.onCanvas = false; });
+        canvas.addEventListener('touchend', () => { mousePos.onCanvas = false; });
+
+        function handlePointerClick(e) {
             if (!isGameRunning) return;
             const rect = canvas.getBoundingClientRect();
-            const clickX = e.clientX - rect.left;
-            const clickY = e.clientY - rect.top;
+            const pos = getEventPos(e, rect);
+            const clickX = pos.x;
+            const clickY = pos.y;
 
             // Check if clicking directly on a node center for matrix selection
             let clickedNode = null;
@@ -1129,7 +1172,9 @@
                     spawnFloatingText(playerObj.x, playerObj.y - 20, 'OUT OF ENERGY (5 EN)', '#ff3b30');
                 }
             }
-        });
+        }
+        canvas.addEventListener('click', handlePointerClick);
+        canvas.addEventListener('touchstart', (e) => { handlePointerClick(e); }, {passive: true});
 
         // Solo Mode Launch
         function launchSoloMatch() {
@@ -1676,6 +1721,10 @@
         // Render Canvas
         function drawGame() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const { scale, offsetX, offsetY } = getCanvasScaleAndOffset();
+            ctx.save();
+            ctx.translate(offsetX, offsetY);
+            ctx.scale(scale, scale);
 
             // Draw Territory Connections (Neon Grid Lines)
             const connected = new Set();
@@ -1920,6 +1969,7 @@
                 ctx.fillText(ft.text, ft.x, ft.y);
                 ctx.restore();
             });
+            ctx.restore(); // Restore global translation/scale
         }
 
         function logTerminal(msg) {
