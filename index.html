@@ -518,6 +518,8 @@
             box-shadow: 0 0 12px rgba(255, 59, 48, 0.35);
         }
 
+        .d-pad { display: none; }
+
         @media (max-width: 1024px) {
             body { height: 100vh; overflow: hidden; }
             .game-layout { flex-direction: column; height: calc(100vh - 60px); }
@@ -539,7 +541,29 @@
             header { height: auto; flex-wrap: wrap; gap: 10px; justify-content: center; text-align: center; padding: 10px; }
             .hud-stats { width: 100%; justify-content: center; flex-wrap: wrap; gap: 15px; }
             .overlay-box { max-width: 95%; padding: 20px; max-height: 90vh; overflow-y: auto; }
+
             #gameCanvas { touch-action: none; }
+            
+            /* D-Pad CSS */
+            .canvas-area { position: relative; }
+            .d-pad { display: flex; position: absolute; bottom: 20px; left: 20px; z-index: 100; flex-direction: column; align-items: center; gap: 5px; opacity: 0.6; }
+            .d-row { display: flex; gap: 45px; }
+            .d-btn { 
+                background: rgba(0, 240, 255, 0.15); 
+                border: 1px solid var(--neon-blue); 
+                color: var(--neon-blue); 
+                width: 50px; 
+                height: 50px; 
+                border-radius: 50%; 
+                font-size: 20px; 
+                display: flex; 
+                justify-content: center; 
+                align-items: center; 
+                user-select: none; 
+                touch-action: manipulation;
+                backdrop-filter: blur(5px);
+            }
+            .d-btn:active { background: rgba(0, 240, 255, 0.5); box-shadow: 0 0 15px rgba(0,240,255,0.8); }
         }
     </style>
 
@@ -615,6 +639,14 @@
         <!-- Center Canvas -->
         <div class="canvas-area">
             <canvas id="gameCanvas"></canvas>
+            <div id="d-pad" class="d-pad">
+                <button class="d-btn up" onpointerdown="keys['w']=true" onpointerup="keys['w']=false" onpointerleave="keys['w']=false">▲</button>
+                <div class="d-row">
+                    <button class="d-btn left" onpointerdown="keys['a']=true" onpointerup="keys['a']=false" onpointerleave="keys['a']=false">◀</button>
+                    <button class="d-btn right" onpointerdown="keys['d']=true" onpointerup="keys['d']=false" onpointerleave="keys['d']=false">▶</button>
+                </div>
+                <button class="d-btn down" onpointerdown="keys['s']=true" onpointerup="keys['s']=false" onpointerleave="keys['s']=false">▼</button>
+            </div>
         </div>
 
         <!-- Right Panel: Game Theory Dashboard -->
@@ -1508,8 +1540,8 @@
                 }
             }
 
-            playerObj.x = Math.max(30, Math.min(canvas.width - 30, playerObj.x));
-            playerObj.y = Math.max(30, Math.min(canvas.height - 30, playerObj.y));
+            playerObj.x = Math.max(30, Math.min(800 - 30, playerObj.x));
+            playerObj.y = Math.max(30, Math.min(700 - 30, playerObj.y));
 
             // Player node capturing
             for (const nId in Nodes) {
@@ -1548,7 +1580,7 @@
                 b.y += b.vy;
 
                 // Screen bounds
-                if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) {
+                if (b.x < 0 || b.x > 800 || b.y < 0 || b.y > 700) {
                     bullets.splice(i, 1);
                     continue;
                 }
